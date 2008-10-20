@@ -1,9 +1,0 @@
-#summary One-sentence summary of this page.
-
-= Introduction =
-
-[CSC] aka "the Cell Splinter Cell" will rock your PS3s
-
-= Details =
-
-fastest k-NN available ....
