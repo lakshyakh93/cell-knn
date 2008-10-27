@@ -1,5 +1,0 @@
-#summary About the project
-
-= Introduction =
-
-An implementation of the K-NN algorithm on IBM's Cell processor. 
