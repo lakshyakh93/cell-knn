@@ -6,4 +6,4 @@ This project is part of the "Praktikum für Verteilte und Parallele Systeme WS 2
 
 = Presentation =
 
-You can download the introduction presentation (in german) here.
+You can download the introduction presentation (in german) [http://cell-knn.googlecode.com/files/IntroductionPresentation.pdf here].
