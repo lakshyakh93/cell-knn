@@ -2,7 +2,7 @@
 
 = Introduction =
 
-This project is part of the [https://orawww.uibk.ac.at/public_prod/owa/lfuonline_lv.details?lvnr_id_in=703701&sem_id_in=08W Praktikum für Verteilte und Parallele Systeme WS 2008/09] course at the [http://uibk.ac.at University of Innsbruck], Austria. The team of this project implements a parallel version of the K-NN algorithm on IBM's Cell processor.
+This project is part of the [https://orawww.uibk.ac.at/public_prod/owa/lfuonline_lv.details?lvnr_id_in=703701&sem_id_in=08W Praktikum für Verteilte und Parallele Systeme] course at the [http://uibk.ac.at University of Innsbruck], Austria. The team of this project implements a parallel version of the K-NN algorithm on IBM's Cell processor.
 
 = Presentation =
 
