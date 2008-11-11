@@ -1,5 +1,4 @@
 = About =
-
 Fedora 9 VMware-Image with Cell-SDK
 
 = Introduction =
