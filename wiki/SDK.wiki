@@ -12,7 +12,7 @@ For makeing live easier we have created a Fedora 9 vmware-image (running under v
   * cell-IDE for eclipse (fixed "21% Kernel Loading" problem)
   * GNU-toolchain
 
-The vmware-image is compressed in a "7z" file with password protection.
+The vmware-image is compressed with "7z" and password protection.
 
 = Download =
 http://dps.uibk.ac.at/~csae6550/downloads/fedora.7z
