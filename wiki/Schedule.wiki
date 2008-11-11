@@ -1,0 +1,17 @@
+#summary Schedule of the project.
+
+= Schedule =
+
+|| *Date* || *Task* ||
+|| 05.11.08 || Development environment ||
+|| 10.12.08 || Cell k-NN 1.0 ||
+|| 14.01.09 || Cell k-NN 2.0 ||
+|| 21.01.08 || Evaluation ||
+
+== Cell k-NN 1.0 ==
+
+In the first version of the Cell k-NN program we are trying to implement a runnable program that distributes the work among the SPEs. Generally, there are two possibilities of how to accomplish this:
+ * *Streaming*
+ * *Pipeline*
+
+We are still not sure, which way to choose, but the tendency goes towords the solution using "Pipelining". We are also considering using the [http://www.bsc.es/plantillaG.php?cat_id=179 Cell Superscalar] framework provided by Barcelona Supercomputer Center.
