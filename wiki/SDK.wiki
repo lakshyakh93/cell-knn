@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#Fedora 9 VMware-Image with Cell-SDK
 
 = Introduction =
 
@@ -7,7 +7,7 @@ Software development for the cell microprocessor involve a mixture of convention
 
 = Details =
 
-For makeing live easier we have created a Fodora 9 vmware-image (running under vmware-server 1.7) with installed SDK 3.1 containing:
+For makeing live easier we have created a Fedora 9 vmware-image (running under vmware-server 1.7) with installed SDK 3.1 containing:
   * Full Systemsimulator (Fedora 9)
   * cell-IDE for eclipse (fixed "21% Kernel Loading" problem)
   * GNU-toolchain
