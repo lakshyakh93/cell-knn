@@ -1,4 +1,4 @@
-#summary Fedora 9 VMware-Image with Cell-SDK
+#summary Fedora 9 VMware-Image with Cell SDK.
 
 = Introduction =
 
