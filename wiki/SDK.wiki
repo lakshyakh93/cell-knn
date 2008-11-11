@@ -1,0 +1,18 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+Software development for the cell microprocessor involve a mixture of conventional development practices for the POWER architecture-compatible PPU core, and novel software development challenges with regards to the functionally reduced SPU coprocessors.
+
+
+= Details =
+
+For makeing live easier we have created a Fodora 9 vmware-image (running under vmware-server 1.7) with installed SDK 3.1 containing:
+  * Full Systemsimulator (Fedora 9)
+  * cell-IDE for eclipse (fixed "21% Kernel Loading" problem)
+  * GNU-toolchain
+
+The vmware-image is compressed in a "7z" file with password protection.
+
+= Download =
+http://dps.uibk.ac.at/~csae6550/download/fedora.7z
