@@ -1,4 +1,4 @@
-#summary About the project
+#summary About the project.
 
 = Introduction =
 
