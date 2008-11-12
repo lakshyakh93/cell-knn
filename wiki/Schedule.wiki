@@ -32,4 +32,8 @@ Another problem of the first approach may occur when using other distance metric
 
 == Cell k-NN 2.0 ==
 
-For version 2.0 of the k-NN implementation we are considering using the [http://www.bsc.es/plantillaG.php?cat_id=179 Cell Superscalar] framework provided by Barcelona Supercomputer Center.
+For version 2.0 of the k-NN implementation we are considering to
+ * Analyze PPE and SPE usage (load balancing)
+ * Implement different distribution paradigm
+ * Implement different distance metric
+ * Use [http://www.bsc.es/plantillaG.php?cat_id=179 Cell Superscalar] framework provided by Barcelona Supercomputer Center.
