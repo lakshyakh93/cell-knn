@@ -3,7 +3,7 @@
 = Schedule =
 
 || *Date* || *Task* ||
-|| 05.11.08 || Development environment ||
+|| 05.11.08 || Development environment [SDK] ||
 || 10.12.08 || [CellKNNv1 Cell k-NN 1.0] ||
 || 14.01.09 || [CellKNNv2 Cell k-NN 2.0] ||
 || 21.01.08 || Evaluation ||
