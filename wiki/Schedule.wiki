@@ -17,7 +17,7 @@ As far as the k-NN algorithm is concerned, we are planning to implement it "as g
 
 [http://cell-knn.googlecode.com/files/Distribution%20Simple.png]
 
-As you can see in the image above, the MNIST image is represented as an array of pixels with brightness values (0-255). This is done in the preprocessing of the image. Then the array is split in _n_ parts (_n_ is the number of SPEs available), for which each SPE calculates the distance of the image to all other references. The PPE then sums up all the distances returned by the SPEs and keeps track of the _k_ nearest images in a sorted list. After all distances between the reference images and the given image have been calculated, the PPE classifies the given image using the _k_ nearest images.
+As you can see in the image above, the MNIST image is represented as an array of pixels with brightness values (0-255). This is done in the preprocessing of the image. Then the array is split in _n_ parts (_n_ is the number of SPEs available), for which each SPE calculates the distance of the image to all other references. The PPE then sums up all the _n_ distances returned by the SPEs and keeps track of the _k_ nearest images in a sorted list. After all distances between the reference images and the given image have been calculated, the PPE classifies the given image using the _k_ nearest images.
 
 == Cell k-NN 2.0 ==
 
