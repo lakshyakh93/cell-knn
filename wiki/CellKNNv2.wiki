@@ -2,8 +2,8 @@
 
 = Cell k-NN 2.0 =
 
-For version 2.0 of the k-NN implementation we are considering to
+For version 2.0 of the k-NN implementation we are planning to
  * Analyze PPE and SPE usage (load balancing)
  * Implement different distribution paradigm
- * Implement different distance metric
+ * Implement different distance measures
  * Use [http://www.bsc.es/plantillaG.php?cat_id=179 Cell Superscalar] framework provided by Barcelona Supercomputer Center.
