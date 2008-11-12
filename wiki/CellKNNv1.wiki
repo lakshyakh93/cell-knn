@@ -22,7 +22,7 @@ Since the effort for these operations is unknown up to now, version 2.0 of the p
 
 Another problem of the first approach may occur when using other distance metrics than the euclidean distance which do not calculate the distance locally but globally.
 
-See the following listing for on overview on our implementation (does not compile!):
+See the following listing for a prototype of our implementation (contains pseudo code):
 
 {{{
 typedef struct {
