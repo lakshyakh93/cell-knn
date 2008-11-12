@@ -19,7 +19,9 @@ The general idea is illustrated in the following image:
 
 [http://cell-knn.googlecode.com/files/Distribution%20Simple.png]
 
-As you can see in the image above, the MNIST image is represented as an array of pixels with brightness values (0-255). This is done in the preprocessing of the image. Then the array is split in _n_ parts (_n_ is the number of SPEs available), for which each SPE calculates the distance of the image to all other references. The PPE then sums up all the _n_ distances returned by the SPEs and keeps track of the _k_ nearest images in a sorted list. After all distances between the reference images and the given image have been calculated, the PPE classifies the given image using the _k_ nearest images.
+As you can see in the image above, the MNIST image is represented as an array of pixels with brightness values (0-255). This is done in the preprocessing of the image. Then the array is split in _n_ parts (_n_ is the number of SPEs available), for which each SPE calculates the distance of the specific part of the image to corresponding part of all other reference images. The PPE then sums up all the _n_ distances returned by the SPEs and keeps track of the _k_ nearest images in a sorted list. After all distances between the reference images and the given image have been calculated, the PPE classifies the given image using the _k_ nearest reference images.
+
+We suspect, that this approach works well for high-dimensional data sets, however for small-dimensional sets it may be more performant if each SPE calculates the distance of a _single_ image rather than a relatively small part of a "small" image, since the overhead of communicating the data may be relatively high compared to the computation effort.
 
 == Cell k-NN 2.0 ==
 
