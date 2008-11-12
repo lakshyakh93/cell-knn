@@ -18,7 +18,7 @@ We suspect, that this approach works well for high-dimensional data sets, howeve
  * The PPE has to sum up the distances gathered from the SPEs
  * The SPEs have to compute the distance for each dimension and calculate the part distances
 
-Since the effort for these operations is unknown up to now, version 2.0 of the program will deal with optimization and load balancing, maybe also causing a different implementation where each SPE calculates the total distance of a single image to a reference image.
+Since the effort for these operations is unknown up to now, version 2.0 of the program will deal with optimization and load balancing, maybe resulting in a different implementation where each SPE calculates the total distance of a single image to a reference image.
 
 Another problem of the first approach may occur when using other distance metrics than the euclidean distance which do not calculate the distance locally but globally.
 
