@@ -15,6 +15,8 @@ In the first version of the Cell k-NN program we are going to implement a runnab
  * A generic implementation of the k-NN algorithm.
 As far as the k-NN algorithm is concerned, we are planning to implement it "as generic as possible", that means, we do not specifically adapt our implementation to the MNIST data sets. For interexchangeability we provide a generic interface consisting of header files, which we are planning to develop in cooperation with the Cuda k-NN Team, if possible.
 
+
+
 == Cell k-NN 2.0 ==
 
 For version 2.0 of the k-NN implementation we are considering using the [http://www.bsc.es/plantillaG.php?cat_id=179 Cell Superscalar] framework provided by Barcelona Supercomputer Center.
