@@ -21,3 +21,58 @@ We suspect, that this approach works well for high-dimensional data sets, howeve
 Since the effort for these operations is unknown up to now, version 2.0 of the program will deal with optimization and load balancing, maybe also causing a different implementation where each SPE calculates the total distance of a single image to a reference image.
 
 Another problem of the first approach may occur when using other distance metrics than the euclidean distance which do not calculate the distance locally but globally.
+
+{{{
+typedef struct {
+	int *vector;
+	int label;
+} Point;
+
+// SPE
+int euclidean(Point *query, Point *reference, int offset, int dimension) {
+	int sum = 0;
+	int i;
+	for (i = 0; i< dimension; i++) {
+		int difference = reference->vector[i] - query->vector[i] 
+		sum += difference * difference;
+	}
+	
+	return sum;
+}
+
+// PPE
+double distance(Point *query, Point *reference, int dimension) {
+	int n = get_number_of_available_spe();
+	int len = dimension / n;
+	
+	// Let each SPE calculate distance of a part of the sample and sum up distances.
+	int sum = 0;
+	int i;
+	for (i = 0; i < n; i++) {
+		int offset = i * len;
+		
+		// Spawn SPE process.
+		sum += euclidean(query, reference, offset, len);
+	}
+	
+	return sqrt(sum);
+}
+
+void classify(int k, Point *query, Point **training, int length, int dimension) {
+	// Create sorted list of length k.
+	List sorted_list;
+	
+	int i;
+	for (i = 0; i < length; i++) {
+		// Calculate distance of sample to training sample.
+		double distance = distance(query, &training[i], dimension);
+		
+		// Insert training sample into sorted list, discarding if training sample
+		// not within k nearest neighbour to query sample.
+		insert(sorted_list, &training[i], distance);
+	}
+	
+	// Do majority vote on k nearest neighbours.
+	query->label = majority_vote(sorted_list);
+}
+}}}
