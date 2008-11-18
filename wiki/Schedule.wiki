@@ -7,3 +7,7 @@
 || 10.12.08 || [CellKNNv1 Cell k-NN 1.0] ||
 || 14.01.09 || [CellKNNv2 Cell k-NN 2.0] ||
 || 21.01.08 || Evaluation ||
+
+= Announcements =
+
+Due to heavy time consumption caused by written tests this week (calendar week 47), the collective cell hacking session on wednesday is canceled. See you at 4PM in class!
