@@ -140,6 +140,7 @@ double distance(Point *query, Point *reference) {
 }
 
 int majorityVote(SortedList list) {
+	// TODO: Implement this.
 	return 0;
 }
 
