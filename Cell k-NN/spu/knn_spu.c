@@ -48,15 +48,14 @@ int main(unsigned long long speId, unsigned long long parm) {
 			int difference = reference[j] - query[j];
 			sum += difference * difference;
 		}
-
-		// Put distance data back into main storage.
-		double *sumPt = &sum;
-		spu_mfcdma((void *) (sumPt), (unsigned int) (&parameters.distance),
-				sizeof(double), tagId, MFC_PUT_CMD);
-
-		// Wait for final DMA to complete before terminating SPE thread.
-		(void) spu_mfcstat(MFC_TAG_UPDATE_ALL);
-
-		return EXIT_SUCCESS;
 	}
+
+	// Put distance data back into main storage.
+	spu_mfcdma((void *) (&sum), (unsigned int) (&parameters.distance),
+			sizeof(double), tagId, MFC_PUT_CMD);
+
+	// Wait for final DMA to complete before terminating SPE thread.
+	(void) spu_mfcstat(MFC_TAG_UPDATE_ALL);
+
+	return EXIT_SUCCESS;
 }
