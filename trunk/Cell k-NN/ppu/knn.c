@@ -1,3 +1,8 @@
+/*
+ * This code is inspired by the example in
+ * Cell SDK 3.1 Programmers Tutorial, page 103 to 111.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
