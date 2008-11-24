@@ -30,10 +30,7 @@ int main(unsigned long long speId, unsigned long long parm) {
 	spu_mfcdma32((void *) (&parameters), (unsigned int) parm,
 			sizeof(Parameters), tagId, MFC_GET_CMD);
 	(void) spu_mfcstat(MFC_TAG_UPDATE_ALL);
-	
-	printf("count = %d", parameters.count);
 
-	/*
 	// For each block of dimensions.
 	for (i = 0; i < parameters.count; i += DIMENSIONS_PER_BLOCK) {
 		// Determine the number of dimensions in this block.
@@ -59,7 +56,6 @@ int main(unsigned long long speId, unsigned long long parm) {
 
 	// Wait for final DMA to complete before terminating SPE thread.
 	(void) spu_mfcstat(MFC_TAG_UPDATE_ALL);
-	*/
 
 	return EXIT_SUCCESS;
 }
