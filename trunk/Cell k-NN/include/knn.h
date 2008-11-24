@@ -17,4 +17,4 @@ typedef struct {
 //double distance(Point *query, Point *reference, int dimension);
 //void classify(int k, Point *query, Point **training, int length, int dimension);
 
-#endif /* KNN_H_ */
+#endif
