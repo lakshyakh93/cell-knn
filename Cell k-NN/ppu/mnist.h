@@ -1,3 +1,6 @@
+#ifndef MNIST_H_
+#define MNIST_H_
+
 typedef struct {
 	int magicNumber;
 	int count;
@@ -23,3 +26,5 @@ LabelIterator *openLabels(char *filePath);
 void closeLabels(LabelIterator *labels);
 int hasNextLabel(LabelIterator *labels);
 unsigned char nextLabel(LabelIterator *labels);
+
+#endif

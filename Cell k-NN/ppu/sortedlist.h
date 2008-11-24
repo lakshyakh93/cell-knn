@@ -1,3 +1,6 @@
+#ifndef SORTEDLIST_H_
+#define SORTEDLIST_H_
+
 #include <knn.h>
 
 typedef struct {
@@ -14,3 +17,5 @@ typedef struct {
 SortedList *createSortedList(int length);
 int insert(SortedList *list, Point *point, double distance);
 void closeSortedList(SortedList *list);
+
+#endif
