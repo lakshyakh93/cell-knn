@@ -9,16 +9,18 @@
 #include <stdlib.h>
 #include <knn.h>
 
-#define DIMENSIONS_PER_BLOCK 4096
+#define DIMENSIONS_PER_BLOCK 1024
 
 volatile Parameters parameters;
 volatile int query[DIMENSIONS_PER_BLOCK] __attribute__((aligned(128)));
 volatile int reference[DIMENSIONS_PER_BLOCK] __attribute__((aligned(128)));
+volatile double distance __attribute__((aligned(16)));
 
-int main(unsigned long long speId, unsigned long long parm) {
+int main(unsigned long long id, unsigned long long parm) {
 	int i, j, left, count;
 	unsigned int tagId;
-	double sum = 0.0;
+	
+	distance = 0.0;
 
 	// Reserve a tag ID.
 	tagId = mfc_tag_reserve();
@@ -40,22 +42,27 @@ int main(unsigned long long speId, unsigned long long parm) {
 		// Fetch the data. Wait for DMA to complete before computation.
 		spu_mfcdma32((void *) (query), (unsigned int) (parameters.query + i),
 				count * sizeof(int), tagId, MFC_GET_CMD);
-		spu_mfcdma32((void *) (reference), (unsigned int) (parameters.reference + i),
-						count * sizeof(int), tagId, MFC_GET_CMD);
-
+		spu_mfcdma32((void *) (reference), (unsigned int) (parameters.reference + i), 
+				count * sizeof(int), tagId, MFC_GET_CMD);
+		
+		// Wait for final DMA to complete before terminating SPE thread.
+		(void) spu_mfcstat(MFC_TAG_UPDATE_ALL);
+		
 		// Compute the distance for the block of dimensions.
 		for (j = 0; j < count; j++) {
 			int difference = reference[j] - query[j];
-			sum += difference * difference;
+			distance += difference * difference;
 		}
 	}
 
 	// Put distance data back into main storage.
-	spu_mfcdma32((void *) (&sum), (unsigned int) (&parameters.distance),
+	spu_mfcdma32((void *) (&distance), (unsigned int) (parameters.distance),
 			sizeof(double), tagId, MFC_PUT_CMD);
 
 	// Wait for final DMA to complete before terminating SPE thread.
 	(void) spu_mfcstat(MFC_TAG_UPDATE_ALL);
+	
+	printf("(0x%llx) distance = %lf\n", id, distance);
 
 	return EXIT_SUCCESS;
 }
