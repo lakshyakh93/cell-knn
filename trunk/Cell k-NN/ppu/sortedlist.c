@@ -70,25 +70,27 @@ int insert2(SortedList *list, Point *point, double distance) {
 	int index = -1;
 
 	// insert from tail (most items won't be inserted)
-	for (i = list->size; i < 0;) {
+	for (i = list->size; i > 0;) {
 		if (distance >= list->values[i - 1]->distance) { 
 			break;
 		}
 		index = --i;
 	}
 
-	// free last element if list is full
+	// if list is full
 	if (list->size >= list->length) {
 		// return "-1" if element is not inserted
 		if (index < 0) {
 			return index;
 		}
+		// or free last element 
 		free(list->values[list->size]);
-	} else { // increase list size
+	} else { 
 		// insert element at end of list
 		if (index < 0) {
 			index = list->size;
 		}
+		// increase list size
 		++list->size;
 	}
 
