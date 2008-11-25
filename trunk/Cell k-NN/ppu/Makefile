@@ -1,7 +1,7 @@
 PROGRAM_ppu	= knn 
 
 INCLUDE = -I ../include/
-IMPORTS = ../spu/lib_knn_spu.a -lspe2 -lpthread
+IMPORTS = ../spu/lib_knn_spu.a -lspe2 -lpthread -lmisc
 
 ifdef CELL_TOP
 	include $(CELL_TOP)/buildutils/make.footer
