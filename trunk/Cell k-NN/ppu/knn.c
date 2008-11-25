@@ -96,6 +96,48 @@ int majorityVote(SortedList *list) {
 	return -1;
 }
 
+int simpleMajorityVote(SortedList *list) {
+	// TODO: Implement this correctly.
+	
+	// TODO better name + move to some header ... 
+	int nrClasses = 10;
+	
+	int i, max, maxVote = 0;
+	int votes[nrClasses];
+	
+	for (i = 0; i < list->size; ++i) {
+		++votes[list->values[i]->point->label];
+	}
+	
+	for (i = 0; i < nrClasses; ++i) {
+		if (votes[i] > maxVote)
+			max = i;
+	}
+	
+	return max;
+}
+
+int reciprocalMajorityVote(SortedList *list) {
+	// TODO: Implement this correctly.
+	
+	// TODO better name + move to some header ... 
+	int nrClasses = 10;
+	
+	int i, max;
+	double votes[nrClasses], maxVote = 0;
+	
+	for (i = 0; i < list->size;) {
+		votes[list->values[i]->point->label] += 1.0 / (double) (++i); //TODO check functionality
+	}
+	
+	for (i = 0; i < nrClasses; ++i) {
+		if (votes[i] > maxVote)
+			max = i;
+	}
+	
+	return max;
+}
+
 void classify(int k, Point *query, Point **training, int length) {
 	// Create sorted list of length k.
 	SortedList *list = createSortedList(k);
