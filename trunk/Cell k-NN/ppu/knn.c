@@ -110,8 +110,10 @@ int simpleMajorityVote(SortedList *list) {
 	}
 	
 	for (i = 0; i < nrClasses; ++i) {
-		if (votes[i] > maxVote)
+		if (votes[i] > maxVote) {
 			max = i;
+			maxVote = votes[i];
+		}
 	}
 	
 	return max;
@@ -131,8 +133,10 @@ int reciprocalMajorityVote(SortedList *list) {
 	}
 	
 	for (i = 0; i < nrClasses; ++i) {
-		if (votes[i] > maxVote)
+		if (votes[i] > maxVote) {
 			max = i;
+			maxVote = votes[i];
+		}
 	}
 	
 	return max;
