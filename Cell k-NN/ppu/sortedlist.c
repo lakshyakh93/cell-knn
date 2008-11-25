@@ -31,44 +31,6 @@ int insert(SortedList *list, Point *point, double distance) {
 	int i;
 	int index = -1;
 
-	if (list->size == 0) {
-		index = 0;
-	}
-
-	for (i = 0; i < list->size; i++) {
-		if (distance <= list->values[i]->distance) { 
-			index = i;
-			break;
-		}
-	}
-
-	// Shift all elements.
-	
-	if (list->size < list->length) {
-		free(list->values[list->size]);
-		list->values[list->size] = list->values[list->size - 1];
-	}
-
-	for (i = (list->size - 2); i >= index; i--) {
-		list->values[i + 1] = list->values[i];
-	}
-
-	if (index >= 0) {
-		ListItem item;
-		item.point = point;
-		item.distance = distance;
-
-		list->values[index] = &item;
-		list->size++;
-	}
-
-	return index;
-}
-
-int insert2(SortedList *list, Point *point, double distance) {
-	int i;
-	int index = -1;
-
 	// insert from tail (most items won't be inserted)
 	for (i = list->size; i > 0;) {
 		if (distance >= list->values[i - 1]->distance) { 
@@ -99,11 +61,8 @@ int insert2(SortedList *list, Point *point, double distance) {
 		list->values[i] = list->values[i - 1];
 	}
 
-	ListItem item;
-	item.point = point;
-	item.distance = distance;
-
-	list->values[index] = &item;
+	list->values[index]->point = point;
+	list->values[index]->distance = distance;
 
 	return index;
 }
