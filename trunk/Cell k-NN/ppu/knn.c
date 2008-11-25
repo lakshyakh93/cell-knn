@@ -87,8 +87,13 @@ double distance(Point *query, Point *reference) {
 }
 
 int majorityVote(SortedList *list) {
-	// TODO: Implement this.
-	return 0;
+	// TODO: Implement this correctly.
+	
+	if (list->size > 0) {
+		return list->values[0]->point->label;
+	}
+	
+	return -1;
 }
 
 void classify(int k, Point *query, Point **training, int length) {
@@ -99,6 +104,8 @@ void classify(int k, Point *query, Point **training, int length) {
 	for (i = 0; i < length; i++) {
 		// Calculate distance of sample to training sample.
 		double d = distance(query, training[i]);
+		
+		printf("overall distance = %lf\n", d);
 
 		// Insert training sample into sorted list, discarding if training sample
 		// not within k nearest neighbor to query point.
@@ -107,6 +114,8 @@ void classify(int k, Point *query, Point **training, int length) {
 
 	// Do majority vote on k nearest neighbours.
 	query->label = majorityVote(list);
+	
+	printf("label = %d\n", query->label);
 	
 	closeSortedList(list);
 }
@@ -126,7 +135,7 @@ int main() {
 		query->vector[i] = query->dimensions - i;
 	};
 	
-	reference->label = -1;
+	reference->label = 1;
 	reference->dimensions = query->dimensions;
 	reference->vector = (int *) malloc_align(query->dimensions * sizeof(int), 7);
 	
@@ -138,8 +147,6 @@ int main() {
 	training[0] = reference;
 	
 	classify(1, query, training, 1);
-	
-	printf("label = %d", query->label);
 	
 	return EXIT_SUCCESS;
 }
