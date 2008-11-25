@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <libspe2.h>
-#include <malloc_align.h>
+#include <libmisc.h>
 #include <knn.h>
 #include "sortedlist.h"
 
@@ -49,9 +49,10 @@ double distance(Point *query, Point *reference) {
 	for (i = 0, offset = 0; i < numberOfSpes; i++, offset += count) {
 		// The last SPE calculates the remaining parts.
 		parameters[i].count = (i == (numberOfSpes - 1)) ? query->dimensions - offset : count;
-		parameters[i].query = query->vector;
-		parameters[i].reference = reference->vector;
-		parameters[i].distance = -1.0;
+		parameters[i].query = &query->vector[offset];
+		parameters[i].reference = &reference->vector[offset];
+		parameters[i].distance = (double *) malloc_align(sizeof(double), 7);
+		*(parameters[i].distance) = -1.0;
 
 		if ((datas[i].context = spe_context_create(0, NULL)) == NULL) {
 			perror("Failed creating context");
@@ -79,7 +80,7 @@ double distance(Point *query, Point *reference) {
 			exit(1);
 		}
 		
-		sum += parameters[i].distance;
+		sum += *(parameters[i].distance);
 	}
 
 	return sum;
@@ -117,23 +118,23 @@ int main() {
 	reference = (Point *) malloc(sizeof(Point));
 	
 	query->label = -1;
-	query->dimensions = 3;
-	query->vector = (int *) malloc(3 * sizeof(int));
+	query->dimensions = 64;
+	query->vector = (int *) malloc_align(query->dimensions * sizeof(int), 7);
 	
 	int i;
-	for (i = 0; i < 3; i++) {
-		query->vector[i] = 0;
+	for (i = 0; i < query->dimensions; i++) {
+		query->vector[i] = query->dimensions - i;
 	};
 	
 	reference->label = -1;
-	reference->dimensions = 3;
-	reference->vector = (int *) _malloc_align(3 * sizeof(int), 7);
+	reference->dimensions = query->dimensions;
+	reference->vector = (int *) malloc_align(query->dimensions * sizeof(int), 7);
 	
-	for (i = 0; i < 3; i++) {
-		reference->vector[i] = 1;
+	for (i = 0; i < query->dimensions; i++) {
+		reference->vector[i] = i + 1;
 	};
 	
-	Point **training = (Point **) _malloc_align(1 * sizeof(Point *), 7);
+	Point **training = (Point **) malloc(1 * sizeof(Point *));
 	training[0] = reference;
 	
 	classify(1, query, training, 1);
