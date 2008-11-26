@@ -3,17 +3,22 @@
  * Cell SDK 3.1 Programmers Tutorial, page 103 to 111.
  */
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <libspe2.h>
 #include <libmisc.h>
 #include <knn.h>
-#include "sortedlist.h"
+#include <map>
+#include <iostream>
+#include <sortedlist.h>
 
 #define MAX_SPE_THREADS 8
 
 extern spe_program_handle_t knn_spu;
+
+
 
 Point *imageToPoint(unsigned char *image, int length, unsigned char label) {
 	Point *point = (Point *) malloc(sizeof(Point));
@@ -29,6 +34,7 @@ Point *imageToPoint(unsigned char *image, int length, unsigned char label) {
 
 	return point;
 }
+
 
 typedef struct {
 	spe_context_ptr_t context;
@@ -160,7 +166,8 @@ int reciprocalMajorityVote(SortedList *list) {
 void classify(int k, Point *query, Point **training, int length) {
 	// Create sorted list of length k.
 	SortedList *list = createSortedList(k);
-
+	
+	
 	int i;
 	for (i = 0; i < length; i++) {
 		// Calculate distance of sample to training sample.
@@ -179,14 +186,17 @@ void classify(int k, Point *query, Point **training, int length) {
 	printf("label = %d\n", query->label);
 
 	closeSortedList(list);
+	
 }
 
 int main() {
+	//std::map<int,int> *stringCounts = new std::map<int,int>();
+	std::cout << "===== Cell KNN ======" << std::endl;
 	Point *query, *reference;
-
+	
 	query = (Point *) malloc(sizeof(Point));
 	reference = (Point *) malloc(sizeof(Point));
-
+	
 	query->label = -1;
 	query->dimensions = 64;
 	query->vector = (int *) malloc_align(query->dimensions * sizeof(int), 7);
@@ -199,7 +209,7 @@ int main() {
 	reference->label = 1;
 	reference->dimensions = query->dimensions;
 	reference->vector = (int *) malloc_align(query->dimensions * sizeof(int), 7);
-
+	
 	for (i = 0; i < query->dimensions; i++) {
 		reference->vector[i] = i + 1;
 	};
@@ -208,6 +218,7 @@ int main() {
 	training[0] = reference;
 
 	classify(1, query, training, 1);
-
+	
+	std::cout << "===== DONE ======" << std::endl;
 	return EXIT_SUCCESS;
 }

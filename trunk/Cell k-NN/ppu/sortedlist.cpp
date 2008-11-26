@@ -4,7 +4,7 @@
 
 SortedList *createSortedList(int length) {
 	// Create sorted list of length "length".
-	SortedList *list = malloc(sizeof(SortedList));
+	SortedList *list = new SortedList();
 
 	list->size = 0;
 	list->length = length;
@@ -19,7 +19,7 @@ void closeSortedList(SortedList *list) {
 		free(list->values[i]);
 	}
 
-	free(list);
+	delete list;
 }
 
 int insert(SortedList *list, Point *point, double distance) {
