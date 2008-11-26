@@ -22,6 +22,6 @@ typedef struct {
 	int *vector __attribute__ ((aligned (16)));
 } Point;
 
-void classify(int k, Point *query, Point **training, int length, int dimension);
+void classify(int k, Point *query, Point **training, int length);
 
 #endif
