@@ -198,7 +198,9 @@ int main() {
 	reference = (Point *) malloc(sizeof(Point));
 	
 	query->label = -1;
-	query->dimensions = 64;
+	
+	//use 48 for PS3
+	query->dimensions = 8*spe_cpu_info_get(SPE_COUNT_USABLE_SPES, -1);
 	query->vector = (int *) malloc_align(query->dimensions * sizeof(int), 7);
 
 	int i;
