@@ -18,7 +18,7 @@ extern spe_program_handle_t knn_spu;
 Point *imageToPoint(unsigned char *image, int length, unsigned char label) {
 	Point *point = (Point *) malloc(sizeof(Point));
 
-	point->dimension = length;
+	point->dimensions = length;
 	point->label = (int) label;
 	point->vector = (int *) malloc_align(length * sizeof(int), 7);
 
@@ -208,10 +208,6 @@ int main() {
 	training[0] = reference;
 
 	classify(1, query, training, 1);
-
-	while (hasNextImage() && hasNextLabel()) {
-		Point *point = imageToPoint(image, imageIterator->rows * imageIterator->columns, label);
-	}
 
 	return EXIT_SUCCESS;
 }
