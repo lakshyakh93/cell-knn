@@ -46,6 +46,8 @@ int insert(SortedList *list, Point *point, double distance) {
 			return index;
 		}
 		// or free last element 
+		// TODO either initialize list items at creation and change pointers OR
+		// TODO dynamically create and delete list items
 		free(list->values[list->size]);
 	} else { 
 		// insert element at end of list
