@@ -51,6 +51,11 @@ void closeImages(ImageIterator *images) {
 	free(images);
 }
 
+void resetImageIterator(ImageIterator *images) {
+	fseek(images->file, (4 * sizeof(int)), SEEK_SET);
+	images->current = 0;
+}
+
 int hasNextImage(ImageIterator *images) {
 	if (images->current >= images->count) {
 		return 0;
@@ -93,6 +98,12 @@ LabelIterator *openLabels(char *filePath) {
 	
 	return labels;
 }
+
+void resetLabelIterator(LabelIterator *labels) {
+	fseek(labels->file, (2 * sizeof(int)), SEEK_SET);
+	labels->current = 0;
+}
+
 
 void closeLabels(LabelIterator *labels) {
 	fclose(labels->file);
