@@ -15,6 +15,21 @@
 
 extern spe_program_handle_t knn_spu;
 
+Point *imageToPoint(unsigned char *image, int length, unsigned char label) {
+	Point *point = (Point *) malloc(sizeof(Point));
+
+	point->dimension = length;
+	point->label = (int) label;
+	point->vector = (int *) malloc_align(length * sizeof(int), 7);
+
+	int i;
+	for (i = 0; i < length; ++i) {
+		point->vector[i] = (int) image[i];
+	}
+
+	return point;
+}
+
 typedef struct {
 	spe_context_ptr_t context;
 	pthread_t pthread;
@@ -79,7 +94,7 @@ double distance(Point *query, Point *reference) {
 			perror("Failed pthread_join");
 			exit(1);
 		}
-		
+
 		sum += *(parameters[i].distance);
 	}
 
@@ -88,57 +103,57 @@ double distance(Point *query, Point *reference) {
 
 int majorityVote(SortedList *list) {
 	// TODO: Implement this correctly.
-	
+
 	if (list->size > 0) {
 		return list->values[0]->point->label;
 	}
-	
+
 	return -1;
 }
 
 int simpleMajorityVote(SortedList *list) {
 	// TODO: Implement this correctly.
-	
-	// TODO better name + move to some header ... 
+
+	// TODO better name + move to some header ...
 	int nrClasses = 10;
-	
+
 	int i, max, maxVote = 0;
 	int votes[nrClasses];
-	
+
 	for (i = 0; i < list->size; ++i) {
 		++votes[list->values[i]->point->label];
 	}
-	
+
 	for (i = 0; i < nrClasses; ++i) {
 		if (votes[i] > maxVote) {
 			max = i;
 			maxVote = votes[i];
 		}
 	}
-	
+
 	return max;
 }
 
 int reciprocalMajorityVote(SortedList *list) {
 	// TODO: Implement this correctly.
-	
-	// TODO better name + move to some header ... 
+
+	// TODO better name + move to some header ...
 	int nrClasses = 10;
-	
+
 	int i, max;
 	double votes[nrClasses], maxVote = 0;
-	
+
 	for (i = 0; i < list->size;) {
 		votes[list->values[i]->point->label] += 1.0 / (double) (++i); //TODO check functionality
 	}
-	
+
 	for (i = 0; i < nrClasses; ++i) {
 		if (votes[i] > maxVote) {
 			max = i;
 			maxVote = votes[i];
 		}
 	}
-	
+
 	return max;
 }
 
@@ -150,7 +165,7 @@ void classify(int k, Point *query, Point **training, int length) {
 	for (i = 0; i < length; i++) {
 		// Calculate distance of sample to training sample.
 		double d = distance(query, training[i]);
-		
+
 		printf("overall distance = %lf\n", d);
 
 		// Insert training sample into sorted list, discarding if training sample
@@ -160,39 +175,43 @@ void classify(int k, Point *query, Point **training, int length) {
 
 	// Do majority vote on k nearest neighbours.
 	query->label = majorityVote(list);
-	
+
 	printf("label = %d\n", query->label);
-	
+
 	closeSortedList(list);
 }
 
 int main() {
 	Point *query, *reference;
-	
+
 	query = (Point *) malloc(sizeof(Point));
 	reference = (Point *) malloc(sizeof(Point));
-	
+
 	query->label = -1;
 	query->dimensions = 64;
 	query->vector = (int *) malloc_align(query->dimensions * sizeof(int), 7);
-	
+
 	int i;
 	for (i = 0; i < query->dimensions; i++) {
 		query->vector[i] = query->dimensions - i;
 	};
-	
+
 	reference->label = 1;
 	reference->dimensions = query->dimensions;
 	reference->vector = (int *) malloc_align(query->dimensions * sizeof(int), 7);
-	
+
 	for (i = 0; i < query->dimensions; i++) {
 		reference->vector[i] = i + 1;
 	};
-	
+
 	Point **training = (Point **) malloc(1 * sizeof(Point *));
 	training[0] = reference;
-	
+
 	classify(1, query, training, 1);
-	
+
+	while (hasNextImage() && hasNextLabel()) {
+		Point *point = imageToPoint(image, imageIterator->rows * imageIterator->columns, label);
+	}
+
 	return EXIT_SUCCESS;
 }
