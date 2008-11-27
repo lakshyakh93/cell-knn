@@ -10,6 +10,7 @@
 #include <libspe2.h>
 #include <libmisc.h>
 #include <knn.h>
+#include <mnist.h>
 #include <map>
 #include <iostream>
 #include <sortedlist.h>
@@ -224,3 +225,92 @@ int main() {
 	std::cout << "===== DONE ======" << std::endl;
 	return EXIT_SUCCESS;
 }
+
+//*************************************
+// TODO TESTING:
+/*
+void classify2(int k, Point *testpoint, ImageIterator *trainimages, LabelIterator *trainlabels) {
+
+	// Create sorted list of length k.
+	SortedList *list = createSortedList(k);
+
+	unsigned char trainlabel;
+    unsigned char *trainimage;
+	
+    Point *trainpoint;
+	
+    while (hasNextImage(trainimages) && hasNextLabel(trainlabels)) {
+            trainimage = nextImage(trainimages);
+            trainlabel = nextLabel(trainlabels);
+
+            trainpoint = imageToPoint(trainimage, (trainimages->rows
+                            * trainimages->columns), trainlabel);
+
+            free(trainimage);
+
+            
+            // Calculate distance of sample to training sample.
+    		double d = distance(trainpoint, trainpoint);
+
+    		printf("overall distance = %lf\n", d);
+
+    		// Insert training sample into sorted list, discarding if training sample
+    		// not within k nearest neighbor to query point.
+    		// TODO free trainpoint just if not inserted!?!
+    		if (insert(list, trainpoint, d) < 0)
+    			free(trainpoint);
+    }
+    
+	// Do majority vote on k nearest neighbours.
+    testpoint->label = majorityVote(list);
+
+	printf("label = %d\n", testpoint->label);
+
+	closeSortedList(list);    
+    resetImageIterator(trainimages);
+    resetLabelIterator(trainlabels);
+}
+
+
+int main2(int argc, char **argv) {
+        if (argc < 5) {
+                fprintf(
+                                stderr,
+                                "Usage: mnist <train label file> <train images file> <test label file> <test images file> \n");
+                return EXIT_FAILURE;
+        }
+
+        //TODO set as arg
+        int k = 10;
+        
+        Point *testpoint;
+
+        LabelIterator *trainlabels = openLabels(argv[1]);
+        ImageIterator *trainimages = openImages(argv[2]);
+        LabelIterator *testlabels = openLabels(argv[3]);
+        ImageIterator *testimages = openImages(argv[4]);
+
+        unsigned char testlabel;
+        unsigned char *testimage;
+        
+        while (hasNextImage(testimages) && hasNextLabel(testlabels)) {
+                
+                testimage = nextImage(testimages);
+                testlabel = nextLabel(testlabels);
+                
+                testpoint = imageToPoint(testimage, (testimages->rows
+                                * testimages->columns), testlabel);
+
+                free(testimage);
+                
+                classify2(k, testpoint, trainimages, trainlabels);
+        }
+
+        closeLabels(trainlabels);
+        closeImages(trainimages);
+        closeLabels(testlabels);
+        closeImages(testimages);
+
+        return EXIT_SUCCESS;
+}
+*/
