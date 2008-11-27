@@ -18,11 +18,13 @@ typedef struct {
 } LabelIterator;
 
 ImageIterator *openImages(char *filePath);
+void resetImageIterator(ImageIterator *images);
 void closeImages(ImageIterator *images);
 int hasNextImage(ImageIterator *images);
 unsigned char *nextImage(ImageIterator *images);
 
 LabelIterator *openLabels(char *filePath);
+void resetLabelIterator(LabelIterator *images);
 void closeLabels(LabelIterator *labels);
 int hasNextLabel(LabelIterator *labels);
 unsigned char nextLabel(LabelIterator *labels);
