@@ -1,7 +1,7 @@
 #include "SortedList.h"
 
-template <class T> 
-SortedList<T>::~SortedList()
+template <class K, class V> 
+SortedList<K, V>::~SortedList()
 {
 	node *temp;
 	
@@ -12,28 +12,28 @@ SortedList<T>::~SortedList()
 	}
 }
 
-template <class T> 
-int SortedList<T>::getMaxSize() {
+template <class K, class V> 
+int SortedList<K, V>::getMaxSize() {
 	return maxSize;
 }
 
-template <class T> 
-int SortedList<T>::getCurrSize() {
+template <class K, class V> 
+int SortedList<K, V>::getCurrSize() {
 	return currSize;
 }
 
-template <class T> 
-bool SortedList<T>::isEmpty() {
+template <class K, class V> 
+bool SortedList<K, V>::isEmpty() {
 	return getCurrSize() == 0;
 }
 
-template <class T> 
-bool SortedList<T>::isFull() {
+template <class K, class V> 
+bool SortedList<K, V>::isFull() {
 	return getCurrSize() >= getMaxSize();
 }
 
-template <class T> 
-void SortedList<T>::print() {
+template <class K, class V> 
+void SortedList<K, V>::print() {
 	node *temp = head;
 	
 	while(temp) {
@@ -43,8 +43,8 @@ void SortedList<T>::print() {
 	std::cout << "\n";
 }
 
-template <class T> 
-int SortedList<T>::insert(int key, T value) {
+template <class K, class V> 
+int SortedList<K, V>::insert(K key, V value) {
 	node *bigger, *smaller;
 	
 	if (isFull()) {
