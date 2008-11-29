@@ -101,4 +101,9 @@ int main() {
 	mylist.print();
 	mylist.insert(2, '5');
 	mylist.print();
+	
+	for (SortedList<char>::Iterator it = mylist.begin(); it != mylist.end(); ++it) {
+		std::cout << it->key << ": " << (*it).value << "\t";
+	}
+	std::cout << "\n";
 }
