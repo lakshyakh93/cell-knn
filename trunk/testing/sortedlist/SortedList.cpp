@@ -37,7 +37,7 @@ void SortedList<T>::print() {
 	node *temp = head;
 	
 	while(temp) {
-		std::cout << temp->key << " ";
+		std::cout << temp->value << " (key=" << temp->key << ")\t";
 		temp = temp->next;
 	}
 	std::cout << "\n";
@@ -80,7 +80,7 @@ int SortedList<T>::insert(int key, T value) {
 // **********************
 // *main fct for testing*
 // **********************
-
+/*
 int main() {
 	SortedList<char> mylist(5);
 	mylist.insert(5, '5');
@@ -107,3 +107,4 @@ int main() {
 	}
 	std::cout << "\n";
 }
+*/
