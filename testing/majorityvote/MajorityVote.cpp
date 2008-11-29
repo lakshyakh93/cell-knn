@@ -2,7 +2,7 @@
 #include <map>
 
 int main() {
-	SortedList<char> mylist(5);
+	SortedList<int, char> mylist(5);
 	mylist.insert(5, '2');
 	mylist.print();
 	mylist.insert(6, '1');
@@ -25,7 +25,7 @@ int main() {
 
 	std::map<char, int> majorityVote;
 	
-	for (SortedList<char>::Iterator it = mylist.begin(); it != mylist.end(); ++it) {
+	for (SortedList<int, char>::Iterator it = mylist.begin(); it != mylist.end(); ++it) {
 		majorityVote[it->value]++;
 	}
 

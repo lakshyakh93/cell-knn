@@ -5,15 +5,15 @@
 #include <iostream>
 #include <iterator>
 
-template <class T> class SortedList {
+template <class K, class V> class SortedList {
 	struct node {
-		int key;
-		T value;
+		K key;
+		V value;
 		node *next;
-		node(int k, T v, node* n) :
+		node(K k, V v, node* n) :
 			key(k), value(v), next(n) {
 		}
-		node(int k, T v) :
+		node(K k, V v) :
 			key(k), value(v), next(NULL) {
 		}
 	};
@@ -29,10 +29,10 @@ public:
 	int getCurrSize();
 	bool isEmpty();
 	bool isFull();
-	int insert(int key, T value);
+	int insert(K key, V value);
 	void print();
 
-	class Iterator : public std::iterator<std::forward_iterator_tag, T> {
+	class Iterator : public std::iterator<std::forward_iterator_tag, K, V> {
 private:
 		node* nd;
 public:
