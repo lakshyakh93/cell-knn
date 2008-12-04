@@ -6,7 +6,7 @@
 
 // L ... label type
 // T ... value type
-template <class L, class T>
+template<class L, class T>
 class Points {
 	int count; //60000
 	int dimension; //28*28
@@ -22,7 +22,7 @@ public:
 	T *getPoint(int n);
 	void setPoint(int n, T *point);
 	Point<L, T>* getPointObject(int n);
-	
+
 	int getCount();
 	void setCount(int count);
 	int getDimension();
@@ -40,8 +40,6 @@ Points<L, T>::Points(int count, int dim) {
 
 template<class L, class T>
 Points<L, T>::~Points() {
-	free(labels);
-	free(points);
 }
 
 template<class L, class T>
@@ -74,7 +72,8 @@ void Points<L, T>::setPoint(int n, T *point) {
 
 template<class L, class T>
 Point<L, T>* Points<L, T>::getPointObject(int n) {
-	return new Point<L, T>(this->getDimension(), &points[n * this->getDimension()], &labels[n]);
+	return new Point<L, T> (this->getDimension(), &points[n
+			* this->getDimension()], &labels[n]);
 }
 
 template<class L, class T>
@@ -83,17 +82,17 @@ int Points<L, T>::getCount() {
 }
 
 template<class L, class T>
-void Points<L, T>::setCount(int count){
+void Points<L, T>::setCount(int count) {
 	this->count = count;
 }
 
 template<class L, class T>
-int Points<L, T>::getDimension(){
+int Points<L, T>::getDimension() {
 	return dimension;
 }
 
 template<class L, class T>
-void Points<L, T>::setDimension(int dimension){
+void Points<L, T>::setDimension(int dimension) {
 	this->dimension = dimension;
 }
 
