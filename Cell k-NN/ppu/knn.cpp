@@ -16,17 +16,17 @@
 #include <sortedlist.h>
 
 #define MAX_SPE_THREADS 8
+#define ARRAY_ALIGNMENT 7
+#define POINTER_ALIGNMENT 4
 
 extern spe_program_handle_t knn_spu;
-
-
 
 Point *imageToPoint(unsigned char *image, int length, unsigned char label) {
 	Point *point = (Point *) malloc(sizeof(Point));
 
 	point->dimensions = length;
 	point->label = (int) label;
-	point->vector = (int *) malloc_align(length * sizeof(int), 7);
+	point->vector = (int *) malloc_align(length * sizeof(int), ARRAY_ALIGNMENT);
 
 	int i;
 	for (i = 0; i < length; ++i) {
@@ -73,7 +73,7 @@ double distance(Point *query, Point *reference) {
 		parameters[i].count = (i == (numberOfSpes - 1)) ? query->dimensions - offset : count;
 		parameters[i].query = &query->vector[offset];
 		parameters[i].reference = &reference->vector[offset];
-		parameters[i].distance = (double *) malloc_align(sizeof(double), 7);
+		parameters[i].distance = (double *) malloc_align(sizeof(double), POINTER_ALIGNMENT);
 		*(parameters[i].distance) = -1.0;
 
 		if ((datas[i].context = spe_context_create(0, NULL)) == NULL) {
@@ -103,6 +103,7 @@ double distance(Point *query, Point *reference) {
 		}
 
 		sum += *(parameters[i].distance);
+		free_align(parameters[i].distance);
 	}
 
 	return sum;
@@ -164,6 +165,25 @@ int reciprocalMajorityVote(SortedList *list) {
 	return max;
 }
 
+int *expandToMultiple(int *oldVector, int oldLength, int *newLength, int multiple) {	
+	if ((oldLength % multiple) != 0) {
+		*newLength = ((int) (oldLength / multiple) + 1) * multiple;
+		int *newVector = (int *) realloc_align(oldVector, 
+				*newLength * sizeof(int), ARRAY_ALIGNMENT);
+		
+		if (newVector != NULL) {
+			if (*newLength > oldLength) {
+				memset(newVector + oldLength, 0,
+						(*newLength - oldLength) * sizeof(int));
+			}
+			
+			return newVector;
+		}
+	}
+	
+	return oldVector;
+}
+
 void classify(int k, Point *query, Point **training, int length) {
 	// Create sorted list of length k.
 	SortedList *list = createSortedList(k);
@@ -198,29 +218,41 @@ int main() {
 	query = (Point *) malloc(sizeof(Point));
 	reference = (Point *) malloc(sizeof(Point));
 	
-	query->label = -1;
+	query->label = -1;	
 	
-	//use 48 for PS3
-	query->dimensions = 8*spe_cpu_info_get(SPE_COUNT_USABLE_SPES, -1);
-	query->vector = (int *) malloc_align(query->dimensions * sizeof(int), 7);
+	int numberOfSpes = spe_cpu_info_get(SPE_COUNT_USABLE_SPES, -1);
+
+	query->dimensions = 1 * numberOfSpes;
+	query->vector = (int *) malloc_align(query->dimensions * sizeof(int), ARRAY_ALIGNMENT);
 
 	int i;
 	for (i = 0; i < query->dimensions; i++) {
 		query->vector[i] = query->dimensions - i;
-	};
+	}
 
 	reference->label = 1;
 	reference->dimensions = query->dimensions;
-	reference->vector = (int *) malloc_align(query->dimensions * sizeof(int), 7);
+	reference->vector = (int *) malloc_align(query->dimensions * sizeof(int), ARRAY_ALIGNMENT);
 	
 	for (i = 0; i < query->dimensions; i++) {
 		reference->vector[i] = i + 1;
-	};
-
+	}
+	
+	query->vector = expandToMultiple(query->vector, query->dimensions,
+			&query->dimensions, 4 * numberOfSpes);
+	reference->vector = expandToMultiple(reference->vector, reference->dimensions, 
+			&reference->dimensions, 4 * numberOfSpes);
+	
 	Point **training = (Point **) malloc(1 * sizeof(Point *));
 	training[0] = reference;
 
 	classify(1, query, training, 1);
+	
+	free_align(query->vector);
+	free_align(reference->vector);
+	free(query);
+	free(reference);
+	free(training);
 	
 	std::cout << "===== DONE ======" << std::endl;
 	return EXIT_SUCCESS;
