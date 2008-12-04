@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <knn.h>
 
-#define DIMENSIONS_PER_BLOCK 1024
+#define DIMENSIONS_PER_BLOCK 4096
 
 volatile Parameters parameters;
 volatile int query[DIMENSIONS_PER_BLOCK] __attribute__((aligned(128)));
@@ -33,7 +33,7 @@ int main(unsigned long long id, unsigned long long parm) {
 	mfc_get((void *) (&parameters), (unsigned int) parm,
 			sizeof(Parameters), tagId, 0, 0);
 	mfc_read_tag_status_all();
-
+	
 	// For each block of dimensions.
 	for (i = 0; i < parameters.count; i += DIMENSIONS_PER_BLOCK) {
 		// Determine the number of dimensions in this block.
