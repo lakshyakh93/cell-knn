@@ -1,6 +1,9 @@
 #ifndef POINT_H_
 #define POINT_H_
 
+#include <malloc_align.h>
+#include <free_align.h>
+
 // L ... label type
 // T ... value type
 template <class L, class T> class Point {
@@ -27,8 +30,8 @@ template <class L, class T>
 Point<L,T>::Point (int dim) {
 	deleteValues = 1;
 	setDimension(dim);
-	label = new L;
-	values = new T[dim];
+	label = (L *) _malloc_align(sizeof(L), 4);
+	values = (T *) _malloc_align(dim * sizeof(T), 4);
 }
 
 template <class L, class T> 
@@ -42,8 +45,8 @@ Point<L,T>::Point (int dim, T *v, L *l) {
 template <class L, class T> 
 Point<L,T>::~Point () {
 	if (deleteValues) {
-		delete label;
-		delete values;
+		_free_align(label);
+		_free_align(values);
 	} else {
 		label = NULL;
 		values = NULL;

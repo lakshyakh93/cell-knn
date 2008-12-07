@@ -1,4 +1,4 @@
-PROGRAM_ppu	= mnist 
+PROGRAM_ppu	= knn_ppu 
 
 INCLUDE = -I ../include/
 IMPORTS = ../spu/lib_knn_spu.a -lspe2 -lpthread -lmisc

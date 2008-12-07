@@ -1,8 +1,6 @@
 #ifndef CELLKNN_H_
 #define CELLKNN_H_
 
-#include <libmisc.h>
-
 #define ALIGNMOD 16
 
 typedef struct {

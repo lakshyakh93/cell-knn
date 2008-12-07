@@ -15,7 +15,6 @@ using namespace std;
 #include "cellknn.h"
 #include <libspe2.h>
 #include <pthread.h>
-#include <libmisc.h>
 
 #define MAX_SPE_THREADS 8
 
@@ -131,7 +130,7 @@ double KNN<L, T>::distance(Point<L, T> &testPoint,	Point<L, T> &trainPoint) {
 		parameters[i].count = (i == (numberOfSpes - 1)) ? size - offset : count;
 		parameters[i].testPoint = &testPoint.getValues()[offset];
 		parameters[i].trainPoint = &trainPoint.getValues()[offset];
-		parameters[i].distance = (double *) malloc(sizeof(double));
+		parameters[i].distance = (double *) _malloc_align(sizeof(double), 4);
 		*(parameters[i].distance) = -1.0;
 
 		if ((datas[i].context = spe_context_create(0, NULL)) == NULL) {
