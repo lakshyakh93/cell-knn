@@ -7,6 +7,7 @@ using namespace std;
 #include <stdio.h>
 #include <stdlib.h>
 
+#define PRETTY_PRINT
 #define DEBUG
 
 void imageToPoint(Point<int, int> *point, unsigned char label,
@@ -18,8 +19,10 @@ void imageToPoint(Point<int, int> *point, unsigned char label,
 }
 
 int main(int argc, char **argv) {
+#ifdef PRETTY_PRINT
 	cout << "---------[Program start]----------" << endl;
-
+#endif
+	
 	if (argc < 3) {
 		fprintf(stderr, "Usage: mnist <k> <mnist path>\n");
 		return EXIT_FAILURE;
@@ -29,8 +32,10 @@ int main(int argc, char **argv) {
 
 	KNN<int, int> knn(k);
 
+#ifdef PRETTY_PRINT
 	cout << "k = " << k << endl;
-
+#endif
+	
 	string base(argv[2]);
 
 	LabelIterator *trainLabels = openLabels(base + "train-labels-idx1-ubyte");
@@ -38,13 +43,23 @@ int main(int argc, char **argv) {
 	LabelIterator *testLabels = openLabels(base + "t10k-labels-idx1-ubyte");
 	ImageIterator *testImages = openImages(base + "t10k-images-idx3-ubyte");
 
+#ifdef DEBUG
+	trainLabels->count = 16;
+	trainImages->count = 16;
+	testLabels->count = 32;
+	testImages->count = 32;
+#endif
+	
 	unsigned char label;
 	unsigned char *image;
 	Points<int, int> points(trainImages->count, trainImages->rows
 			*trainImages->columns);
+
+#ifdef PRETTY_PRINT
 	cout << "size: " << trainImages->rows*trainImages->columns << "\tcount: "
 			<< trainImages->count << endl;
-
+#endif
+	
 	int i = 0;
 	Point<int, int> *trainPoint;
 	while (hasNextLabel(trainLabels) && hasNextImage(trainImages)) {
@@ -55,11 +70,16 @@ int main(int argc, char **argv) {
 		imageToPoint(trainPoint, label, image,
 				(trainImages->columns*trainImages->rows));
 
+#ifdef PRETTY_PRINT
+		if ((i % 1000) == 0)
+			cout << i << " Images loaded." << endl;
+#endif
+		
 		delete trainPoint;
 		free(image);
 	}
 
-#ifdef DEBUG
+#ifdef PRETTY_PRINT
 	int temp, all = 0, good = 0;
 #endif
 	while (hasNextLabel(testLabels) && hasNextImage(testImages)) {
@@ -72,15 +92,14 @@ int main(int argc, char **argv) {
 
 		free(image);
 		
-#ifdef DEBUG
+#ifdef PRETTY_PRINT
 		temp = testPoint.getLabel();
-		cout << "label:\t" << testPoint.getLabel();
 #endif
 		
 		knn.classify(testPoint, points);
 		
-#ifdef DEBUG
-		cout << "\tcalculated:\t" << testPoint.getLabel();
+#ifdef PRETTY_PRINT
+		cout << "label:\t" << temp << "\tcalculated:\t" << testPoint.getLabel();
 		++all;
 		if (temp == testPoint.getLabel()) ++good;
 		cout << "\t#:\t" << all << "\tgood:\t" << (100.0 * good / all) << endl;
