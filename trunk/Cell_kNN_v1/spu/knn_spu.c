@@ -7,6 +7,8 @@
 #include <spu_mfcio.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <libmisc.h>
+
 #include "cellknn.h"
 
 #define DIMENSIONS_PER_BLOCK 1024
@@ -40,6 +42,12 @@ int main(unsigned long long id, unsigned long long parm) {
 		left = parameters.count - i;
 		count = (left < DIMENSIONS_PER_BLOCK) ? left : DIMENSIONS_PER_BLOCK;
 		
+#ifdef DEBUG_ALL
+		printf("TestPoint = %p, count = %d\n", parameters.testPoint, count);
+		printf("TrainPoint = %p, count = %d\n", parameters.trainPoint, count);
+		fflush(stdout);
+#endif
+		
 		// Fetch the data. Wait for DMA to complete before computation.
 		mfc_get((void *) (testPoint), (unsigned int) (parameters.testPoint + i),
 						count * sizeof(int), tagId, 0, 0);
@@ -49,6 +57,12 @@ int main(unsigned long long id, unsigned long long parm) {
 		// Wait for final DMA to complete before terminating SPE thread.
 		mfc_read_tag_status_all();
 
+#ifdef DEBUG_ALL
+		printf("Successfully read TestPoint and TrainPoint\n");
+		fflush(stdout);
+#endif
+
+		
 		// Compute the distance for the block of dimensions.
 		for (j = 0; j < count; j++) {
 			int difference = trainPoint[j] - testPoint[j];
@@ -63,7 +77,10 @@ int main(unsigned long long id, unsigned long long parm) {
 	// Wait for final DMA to complete before terminating SPE thread.
 	mfc_read_tag_status_all();
 	
+#ifdef DEBUG_ALL
 	printf("(0x%llx) distance = %lf\n", id, distance);
+	fflush(stdout);
+#endif
 
 	return EXIT_SUCCESS;
 }

@@ -2,6 +2,8 @@
 
 #define IMAGE_OFFSET 16
 #define LABEL_OFFSET 8
+#define SIZE_OF_INT 4
+#define SIZE_OF_CHAR 1
 
 // Converts from little endian to big endian.
 void swapBytes(int *value) {
@@ -17,12 +19,12 @@ void swapBytes(int *value) {
 }
 
 void readInt(FILE *fp, int *number) {
-	fread(number, sizeof(int), 1, fp);
-	swapBytes(number);
+	fread(number, SIZE_OF_INT, 1, fp);
+	//swapBytes(number); // TODO not needed on cell
 }
 
 void readChar(FILE *fp, unsigned char *number) {
-	fread(number, sizeof(unsigned char), 1, fp);
+	fread(number, SIZE_OF_CHAR, 1, fp);
 }
 
 ImageIterator *openImages(string filePath) {
@@ -40,9 +42,13 @@ ImageIterator *openImages(string filePath) {
 	readInt(images->file, &images->rows);
 	readInt(images->file, &images->columns);
 	
+#ifdef DEBUG
 	if (images->magicNumber != 2051) {
-		fprintf(stderr, "Magic number of images file is not 2051.\n");
+		fprintf(stderr, "Magic number of images file is not 2051 it's %d.\n", images->magicNumber);
+	} else {
+		fprintf(stderr, "Magic number of images file is correct.\n");
 	}
+#endif
 	
 	return images;
 }
@@ -93,9 +99,13 @@ LabelIterator *openLabels(string filePath) {
 	readInt(labels->file, &labels->magicNumber);
 	readInt(labels->file, &labels->count);
 
+#ifdef DEBUG
 	if (labels->magicNumber != 2049) {
-		fprintf(stderr, "Magic number of images file is not 2049.\n");
+		fprintf(stderr, "Magic number of label file is not 2049 it's %d.\n", labels->magicNumber);
+	} else {
+		fprintf(stderr, "Magic number of label file is correct.\n");
 	}
+#endif
 	
 	return labels;
 }

@@ -4,6 +4,8 @@
 #include "Point.h"
 #include "cellknn.h"
 #include <stdio.h>
+#include <malloc_align.h>
+#include <free_align.h>
 
 // L ... label type
 // T ... value type
@@ -44,12 +46,14 @@ template<class L, class T> Points<L, T>::Points(int count, int dim) {
 	lsize = sizeof(L);
 	if (lsize % ALIGNMOD)
 		lsize = (static_cast<int>(lsize / ALIGNMOD) + 1) * ALIGNMOD;
-	labels = (L *) malloc_align(lsize * count, 7);
+	labels = (L *) _malloc_align(lsize * count, 7);
+	lsize /= sizeof(L); //TODO !!!
 
 	vsize = dim * sizeof(T);
 	if (vsize % ALIGNMOD)
 		vsize = (static_cast<int>(vsize / ALIGNMOD) + 1) * ALIGNMOD;
-	values = (T *) malloc_align(vsize * count, 7);
+	values = (T *) _malloc_align(vsize * count, 7);
+	vsize /= sizeof(T); //TODO !!!
 	//-----------------------------------------------
 }
 
