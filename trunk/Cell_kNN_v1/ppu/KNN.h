@@ -79,6 +79,7 @@ void KNN<L, T>::classify(Point<L, T> &testPoint, Points<L, T> &trainPoints) {
 	}
 	
 	testPoint.setLabel(majorityVote(sortedlist));
+	
 }
 
 template <class L, class T>
@@ -133,6 +134,7 @@ double KNN<L, T>::distance(Point<L, T> &testPoint,	Point<L, T> &trainPoint) {
 		parameters[i].distance = (double *) _malloc_align(sizeof(double), 4);
 		*(parameters[i].distance) = -1.0;
 
+		
 		if ((datas[i].context = spe_context_create(0, NULL)) == NULL) {
 			perror("Failed creating context");
 			exit(1);
@@ -150,6 +152,7 @@ double KNN<L, T>::distance(Point<L, T> &testPoint,	Point<L, T> &trainPoint) {
 			perror("Failed creating thread");
 			exit(1);
 		}
+		
 	}
 
 	double sum = 0.0;
@@ -160,6 +163,11 @@ double KNN<L, T>::distance(Point<L, T> &testPoint,	Point<L, T> &trainPoint) {
 		}
 
 		sum += *(parameters[i].distance);
+	}
+	
+	for(i=0; i<numberOfSpes; i++)
+	{
+		spe_context_destroy(datas[i].context);
 	}
 
 	return sum;
