@@ -39,7 +39,7 @@ public:
 template<class L, class T> Points<L, T>::Points(int count, int dim) {
 	setCount(count);
 	setDimension(dim);
-
+	
 	//-----------------------------------------------
 	//----------CELL BE Stuff------------------------
 	//-----------------------------------------------
@@ -55,11 +55,12 @@ template<class L, class T> Points<L, T>::Points(int count, int dim) {
 	values = (T *) _malloc_align(vsize * count, 7);
 	vsize /= sizeof(T); //TODO !!!
 	//-----------------------------------------------
+	
 }
 
 template<class L, class T> Points<L, T>::~Points() {
-	free(labels);
-	free(values);
+	//free(labels);
+	//free(values);
 }
 
 template<class L, class T> L* Points<L, T>::getLabel(int n) {
