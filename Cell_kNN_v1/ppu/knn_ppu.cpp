@@ -30,8 +30,9 @@ int main(int argc, char **argv) {
 
 	int k = atoi(argv[1]);
 
+	
 	KNN<int, int> knn(k);
-
+	
 #ifdef PRETTY_PRINT
 	cout << "k = " << k << endl;
 #endif
@@ -43,18 +44,22 @@ int main(int argc, char **argv) {
 	LabelIterator *testLabels = openLabels(base + "t10k-labels-idx1-ubyte");
 	ImageIterator *testImages = openImages(base + "t10k-images-idx3-ubyte");
 
+	
 #ifdef DEBUG
-	trainLabels->count = 16;
-	trainImages->count = 16;
-	testLabels->count = 32;
-	testImages->count = 32;
+	trainLabels->count = 500;
+	trainImages->count = 500;
+	testLabels->count = 2;
+	testImages->count = 2;
 #endif
 	
 	unsigned char label;
 	unsigned char *image;
+	
+	cout << trainImages->count << " " << trainImages->rows*trainImages->columns <<  endl; 
 	Points<int, int> points(trainImages->count, trainImages->rows
 			*trainImages->columns);
 
+	
 #ifdef PRETTY_PRINT
 	cout << "size: " << trainImages->rows*trainImages->columns << "\tcount: "
 			<< trainImages->count << endl;

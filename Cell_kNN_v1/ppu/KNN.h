@@ -147,7 +147,7 @@ double KNN<L, T>::distance(Point<L, T> &testPoint,	Point<L, T> &trainPoint) {
 
 		datas[i].entry = SPE_DEFAULT_ENTRY;
 		datas[i].arguments = &parameters[i];
-
+		//printf("Started SPE %d\n",i);
 		if (pthread_create(&datas[i].pthread, NULL, &runSpeContext, &datas[i])) {
 			perror("Failed creating thread");
 			exit(1);
