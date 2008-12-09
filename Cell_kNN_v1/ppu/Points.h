@@ -59,8 +59,8 @@ template<class L, class T> Points<L, T>::Points(int count, int dim) {
 }
 
 template<class L, class T> Points<L, T>::~Points() {
-	//free(labels);
-	//free(values);
+	_free_align(labels);
+	_free_align(values);
 }
 
 template<class L, class T> L* Points<L, T>::getLabel(int n) {
