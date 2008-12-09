@@ -7,6 +7,9 @@
 
 using namespace std;
 
+/** 
+* @brief Structure representing the image fileformat used by the mnist-database
+*/
 typedef struct {
 	int magicNumber;
 	int count;
@@ -16,6 +19,9 @@ typedef struct {
 	FILE *file;
 } ImageIterator;
 
+/** 
+* @brief Structure representing the label fileformat used by the mnist-database
+*/
 typedef struct {
 	int magicNumber;
 	int count;
