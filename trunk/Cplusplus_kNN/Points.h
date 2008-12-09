@@ -40,8 +40,8 @@ Points<L, T>::Points(int count, int dim) {
 
 template<class L, class T>
 Points<L, T>::~Points() {
-	delete labels;
-	delete values;
+        delete[] labels;
+        delete[] values;
 }
 
 template<class L, class T>

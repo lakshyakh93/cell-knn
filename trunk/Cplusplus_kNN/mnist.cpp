@@ -36,7 +36,18 @@ int main(int argc, char **argv) {
 	LabelIterator *trainLabels = openLabels(base + "train-labels-idx1-ubyte");
 	ImageIterator *trainImages = openImages(base + "train-images-idx3-ubyte");
 	LabelIterator *testLabels = openLabels(base + "t10k-labels-idx1-ubyte");
-	ImageIterator *testImages = openImages(base + "t10k-images-idx3-ubyte");
+        ImageIterator *testImages = openImages(base + "t10k-images-idx3-ubyte");
+
+        if ( trainLabels == 0 || trainImages == 0 || testLabels == 0 || testImages == 0 )
+        {
+            cout << "One or more files couldn't be found! Make shure that following files are in the directory given as argument:\n"
+                    << "train-labels-idx1-ubyte\n"
+                    << "train-images-idx3-ubyte\n"
+                    << "t10k-labels-idx1-ubyte\n"
+                    << "t10k-images-idx3-ubyte\n"
+                    << endl;
+            exit(-1);
+        }
 
 	unsigned char label;
 	unsigned char *image;
