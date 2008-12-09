@@ -43,7 +43,7 @@ template <class L, class T>
 Point<L,T>::~Point () {
 	if (deleteValues) {
 		delete label;
-		delete values;
+                delete[] values;
 	} else {
 		label = NULL;
 		values = NULL;
