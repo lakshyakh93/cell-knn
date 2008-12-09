@@ -9,6 +9,11 @@ using namespace std;
 
 // L ... label type
 // T ... value type
+/** 
+* @brief Template class to use for the KNN algorithmus. \n
+* 	class L stands for the label \n
+*	class T stands for the value to classify
+*/
 template <class L, class T>
 class KNN {
 	int k;
@@ -23,10 +28,20 @@ public:
 	void classify(Point<L, T> &testPoint, Points<L, T> &trainPoints);
 };
 
+/** 
+* @brief Standard constuctor, sets the k ( representing the considered neighbours ) to 1
+* 
+*/
 template <class L, class T> KNN<L, T>::KNN() {
 	this(1);
 }
 
+/** 
+* @brief Constructor with k ( representing the considered neighbours ) as argument
+* 
+* @param k value responisble how much neighbours are considered for classification
+* 
+*/
 template <class L, class T> KNN<L, T>::KNN(int k) {
 	this->k = k;
 }
@@ -34,6 +49,14 @@ template <class L, class T> KNN<L, T>::KNN(int k) {
 template <class L, class T> KNN<L, T>::~KNN() {
 }
 
+/** 
+* @brief Fuction used to classify the testPoint against the trainPoints \n
+* 	testPoints label is set with the calculated label.
+* 
+* @param testPoint Point to be classified
+* @param trainPoints Training points used as reference
+* 
+*/
 template <class L, class T>
 void KNN<L, T>::classify(Point<L, T> &testPoint, Points<L, T> &trainPoints) {
 	SortedList<double, L> sortedlist(k);
@@ -48,6 +71,13 @@ void KNN<L, T>::classify(Point<L, T> &testPoint, Points<L, T> &trainPoints) {
 	testPoint.setLabel(majorityVote(sortedlist));
 }
 
+/** 
+* @brief Function used to compute the most occurrencies of same distance values (sum of sqare the difference)
+* 
+* @param sortedlist SortedList filled with distance values and labels
+* 
+* @return class L The classification of the image
+*/
 template <class L, class T>
 L KNN<L, T>::majorityVote(SortedList<double, L> &sortedlist) {
 	map<L, int> majorityVote;
@@ -69,6 +99,14 @@ L KNN<L, T>::majorityVote(SortedList<double, L> &sortedlist) {
 	return max;
 }
 
+/** 
+* @brief Function to calculate the sum of the distances sqare over all Points 
+* 
+* @param testPoint Point to calulate the distance
+* @param trainPoint Training Point as counterpart
+* 
+* @return Sum of the distances squared
+*/
 template <class L, class T>
 double KNN<L, T>::distance(Point<L, T> &testPoint,	Point<L, T> &trainPoint) {
 	double sum = 0.0, temp;

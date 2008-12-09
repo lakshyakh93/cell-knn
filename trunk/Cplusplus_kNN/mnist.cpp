@@ -9,6 +9,14 @@ using namespace std;
 
 #define DEBUG
 
+/** 
+* @brief Function to write the data of an image to a Point-class
+* 
+* @param point Point to write to
+* @param label Label to set for the point
+* @param image Image from which the data comes
+* @param length Size of an image
+*/
 void imageToPoint(Point<int, int> *point, unsigned char label,
 		unsigned char *image, int length) {
 	for (int i = 0; i < length; ++i) {
@@ -17,6 +25,14 @@ void imageToPoint(Point<int, int> *point, unsigned char label,
 	point->setLabel(static_cast<int> (label));
 }
 
+/** 
+* @brief Entryfunction for this program parameters are: \n
+*       int k: Amount of neighbours used to classify the Image \n
+*       string testpath: Directory in which the mnist-files are
+*
+* @return 0 if the program terminated normaly \n
+*       -1 else
+*/
 int main(int argc, char **argv) {
 	cout << "---------[Program start]----------" << endl;
 

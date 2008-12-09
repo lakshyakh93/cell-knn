@@ -3,6 +3,9 @@
 
 // L ... label type
 // T ... value type
+/** 
+* @brief Class Point used to represent an image with label and data-field
+*/
 template <class L, class T> class Point {
 	int dimension;
 	int deleteValues;
@@ -23,6 +26,11 @@ public:
 	void setValues(T* vector);
 };
 
+/**
+* @brief Standardconstructor with the (image)dimesion as argument
+*
+* @param dim Dimension of the values (amount of pixels in an image)
+*/
 template <class L, class T> 
 Point<L,T>::Point (int dim) {
 	deleteValues = 1;
@@ -31,7 +39,14 @@ Point<L,T>::Point (int dim) {
 	values = new T[dim];
 }
 
-template <class L, class T> 
+/**
+* @brief Constructor to set dimension, the data and the label
+*
+* @param dim Dimension of the datafield
+* @param v Pointer to the datafield
+* @param l Label to be set
+*/
+template <class L, class T>
 Point<L,T>::Point (int dim, T *v, L *l) {
 	deleteValues = 0;
 	setDimension(dim);
@@ -50,37 +65,71 @@ Point<L,T>::~Point () {
 	}
 }
 
-
+/**
+* @brief Getter function to return the dimension of the datafield
+*
+* @return Dimension of the datafield
+*/
 template <class L, class T> 
 int Point<L,T>::getDimension() {
 	return this->dimension;
 }
 
-template <class L, class T> 
+/**
+* @brief Setter function to set the dimension of the datafield
+*
+* @param dim Dimension to be set
+*/
+template <class L, class T>
 void Point<L,T>::setDimension(int dim) {
 	this->dimension = dim;
 }
 
-template <class L, class T> 
+/**
+* @brief Getter function, which returns a Pointer to the Label
+*
+* @return Pointer to the Label
+*/
+template <class L, class T>
 L Point<L,T>::getLabel() {
 	return *label;
 }
 
+/**
+* @brief Setter function to set the label to a new value
+*
+* @param l Value for the new label
+*/
 template <class L, class T> 
 void Point<L,T>::setLabel (L l) {
 	*label = l;
 }
 
+/**
+* @brief Setter function to set the label to a new value (pointing to the parameter l )
+*
+* @param l Pointer to the new label
+*/
 template <class L, class T> 
 void Point<L,T>::setLabel (L *l) {
 	label = l;
 }
 
+/**
+* @brief Getter function to return the values of the datafield
+*
+* @return Pointer to the datafield
+*/
 template <class L, class T> 
 T *Point<L,T>::getValues() {
 	return values;
 }
 
+/**
+* @brief Setter function to set the new Datafield ( pointing to parameter v )
+*
+* @param v Pointer to the new values
+*/
 template <class L, class T> 
 void Point<L,T>::setValues (T *v) {
 	values = v;
