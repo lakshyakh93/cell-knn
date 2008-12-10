@@ -87,7 +87,7 @@ In the code repository you can find various versions of an implementation of the
 
 Executing the MNIST tests has shown, that the parallel version peforms drastically worse than the sequential implementation. We have identified the following possible reasons:
  * A single SPE transfers only about 0.5 kByte compared the possible 16 kByte per comparison of a single reference point to the query point.
- * For each training point (60000 MNIST images) a thread for each SPE is created again and again. Meaning, 60000 * number_of_SPEs threads are created, destroyed and joined when classifying a query point (1 MNIST image). When classyfing all 10000 MNIST images in the test set, an overall of 60000 * number_of_SPEs * 10000 threads are spawned.
+ * For each training point (60000 MNIST images) a thread for each SPE is created again and again. Meaning, 60000 x number_of_SPEs threads are created, destroyed and joined when classifying a query point (1 MNIST image). When classyfing all 10000 MNIST images in the test set, an overall of 60000 x number_of_SPEs x 10000 threads are spawned.
  * Since all threads are started more or less at the same time, there is a simultaneous access to the main memory from all SPEs, which leads to a bottleneck at the EIB through simultaneous DMA calls on the same memory adresses.
 
 Documentation is available at:
