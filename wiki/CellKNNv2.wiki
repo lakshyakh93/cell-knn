@@ -7,8 +7,13 @@ For version 2.0 of the k-NN implementation we are planning to
  * Implement different distribution paradigm
  * Implement different distance measures
  * Use [http://www.bsc.es/plantillaG.php?cat_id=179 Cell Superscalar] framework provided by Barcelona Supercomputer Center.
+ * MARS - Multicore Application Runtime System.
 
-From the results obtained from analyzing the Cell k-NN 1.0 version, we want to realize the following optimizations:
- * ...
+Considering the results obtained from analyzing the Cell k-NN 1.0 version, we want to realize the following optimizations:
+ * Extend program to use SIMD (Single Instruction Multiple Data) features, i.e. calculate distance of 4 dimensions in one cycle.
+ * Implement pipelining approach as described in section "Pipelining"
+
+== Pipelining ==
 
 [http://cell-knn.googlecode.com/files/Pipelining.png]
+Figure 1: Pipelining
