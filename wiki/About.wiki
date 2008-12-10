@@ -7,7 +7,7 @@ This project is part of the [https://orawww.uibk.ac.at/public_prod/owa/lfuonline
 = Presentation =
 
   * You can download the introduction presentation (in german) [http://cell-knn.googlecode.com/files/IntroductionPresentation.pdf here].
-  * A presentation showing our schedule can be found [http://cell-knn.googlecode.com/files/Schedule.pdf here].
+  * A presentation showing our schedule can be found [http://cell-knn.googlecode.com/files/Schedule.pdf here]. Alternatively, visit the [Schedule schedule] wiki page.
 
 = Results =
 
