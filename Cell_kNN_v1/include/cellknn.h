@@ -3,6 +3,9 @@
 
 #define ALIGNMOD 16
 
+/** 
+* @brief Structure used to organice the comparission of the elements
+*/
 typedef struct {
 	// Number of elements in the query and reference arrays.
 	int count __attribute__((aligned(16)));

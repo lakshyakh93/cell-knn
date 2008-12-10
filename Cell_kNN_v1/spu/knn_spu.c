@@ -18,6 +18,14 @@ volatile int testPoint[DIMENSIONS_PER_BLOCK] __attribute__((aligned(128)));
 volatile int trainPoint[DIMENSIONS_PER_BLOCK] __attribute__((aligned(128)));
 volatile double distance __attribute__((aligned(16)));
 
+/** 
+* @brief Entryfunction used by the SPE
+* 
+* @param id ID assigned to the SPE
+* @param parm Pointer to k-NN parameters
+* 
+* @return 0 if everything finished properly
+*/
 int main(unsigned long long id, unsigned long long parm) {
 	int i, j, left, count;
 	unsigned int tagId, tag_mask;
