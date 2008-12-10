@@ -16,4 +16,3 @@ Considering the results obtained from analyzing the Cell k-NN 1.0 version, we wa
 == Pipelining ==
 
 [http://cell-knn.googlecode.com/files/Pipelining.png]
-Figure 1: Pipelining
