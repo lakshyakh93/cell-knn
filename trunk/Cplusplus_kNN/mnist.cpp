@@ -36,8 +36,8 @@ void imageToPoint(Point<int, int> *point, unsigned char label,
 int main(int argc, char **argv) {
 	cout << "---------[Program start]----------" << endl;
 
-	if (argc < 5) {
-		fprintf(stderr, "Usage: mnist <k> <train> <test> <mnist path>\n");
+	if (argc < 3) {
+		fprintf(stderr, "Usage: mnist <k> <mnist path> [<nr train images> <nr test images>]\n");
 		return EXIT_FAILURE;
 	}
 
@@ -47,23 +47,29 @@ int main(int argc, char **argv) {
 
 	cout << "k = " << k << endl;
 
-	string base(argv[4]);
+	string base(argv[2]);
 
 	LabelIterator *trainLabels = openLabels(base + "train-labels-idx1-ubyte");
 	ImageIterator *trainImages = openImages(base + "train-images-idx3-ubyte");
 	LabelIterator *testLabels = openLabels(base + "t10k-labels-idx1-ubyte");
-        ImageIterator *testImages = openImages(base + "t10k-images-idx3-ubyte");
+	ImageIterator *testImages = openImages(base + "t10k-images-idx3-ubyte");
 
-        if ( trainLabels == 0 || trainImages == 0 || testLabels == 0 || testImages == 0 )
-        {
-            cout << "One or more files couldn't be found! Make shure that following files are in the directory given as argument:\n"
-                    << "train-labels-idx1-ubyte\n"
-                    << "train-images-idx3-ubyte\n"
-                    << "t10k-labels-idx1-ubyte\n"
-                    << "t10k-images-idx3-ubyte\n"
-                    << endl;
-            exit(-1);
-        }
+	if (trainLabels == 0 || trainImages == 0 || testLabels == 0 || testImages
+			== 0) {
+		cout
+				<< "One or more files couldn't be found! Make sure that following files are in the directory given as argument:\n"
+				<< "\ttrain-labels-idx1-ubyte\n" << "\ttrain-images-idx3-ubyte\n"
+				<< "\tt10k-labels-idx1-ubyte\n" << "\tt10k-images-idx3-ubyte\n"
+				<< endl;
+		exit(-1);
+	}
+
+	if (argc >= 5) {
+		trainLabels->count = atoi(argv[3]);
+		trainImages->count = atoi(argv[3]);
+		testLabels->count = atoi(argv[4]);
+		testImages->count = atoi(argv[4]);
+	}
 
 	unsigned char label;
 	unsigned char *image;
@@ -74,7 +80,7 @@ int main(int argc, char **argv) {
 
 	int i = 0;
 	Point<int, int> *trainPoint;
-	while (hasNextLabel(trainLabels) && hasNextImage(trainImages) && i<=atoi(argv[2])) {
+	while (hasNextLabel(trainLabels) && hasNextImage(trainImages)) {
 		image = nextImage(trainImages);
 		label = nextLabel(trainLabels);
 		trainPoint = points.getPoint(i++);
@@ -88,7 +94,7 @@ int main(int argc, char **argv) {
 #ifdef DEBUG
 	int temp, all = 0, good = 0, count=0;
 #endif
-	while (hasNextLabel(testLabels) && hasNextImage(testImages) && count<atoi(argv[3])) {
+	while (hasNextLabel(testLabels) && hasNextImage(testImages)) {
 		count++;
 		image = nextImage(testImages);
 		label = nextLabel(testLabels);
@@ -113,8 +119,6 @@ int main(int argc, char **argv) {
 		cout << "\t#:\t" << all << "\tgood:\t" << (100.0 * good / all) << endl;
 #endif
 	}
-
-	//cout << points.getPoint(333).getValues()[33];
 
 	closeLabels(trainLabels);
 	closeImages(trainImages);
