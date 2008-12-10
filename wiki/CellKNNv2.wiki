@@ -7,3 +7,8 @@ For version 2.0 of the k-NN implementation we are planning to
  * Implement different distribution paradigm
  * Implement different distance measures
  * Use [http://www.bsc.es/plantillaG.php?cat_id=179 Cell Superscalar] framework provided by Barcelona Supercomputer Center.
+
+From the results obtained from analyzing the Cell k-NN 1.0 version, we want to realize the following optimizations:
+ * ...
+
+[http://cell-knn.googlecode.com/files/Pipelining.png]
