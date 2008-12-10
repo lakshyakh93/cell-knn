@@ -5,7 +5,11 @@
 #define SIZE_OF_INT 4
 #define SIZE_OF_CHAR 1
 
-// Converts from little endian to big endian.
+/**
+* @brief Converts from little endian to big endian
+*
+* @param value Variable to be changed
+*/
 void swapBytes(int *value) {
 	unsigned char *cptr, tmp;
 	
@@ -18,15 +22,34 @@ void swapBytes(int *value) {
 	cptr[2] = tmp;
 }
 
+/**
+* @brief Read an Integer from the file where fp points to
+*
+* @param fp Pointer to a FILE object
+* @param number Variable to store the Integer to
+*/
 void readInt(FILE *fp, int *number) {
 	fread(number, SIZE_OF_INT, 1, fp);
 	//swapBytes(number); // TODO not needed on cell
 }
 
+/**
+* @brief Read a char from the file where fp points to
+*
+* @param fp Pointer to a FILE object
+* @param number Variable to store the Integer to
+*/
 void readChar(FILE *fp, unsigned char *number) {
 	fread(number, SIZE_OF_CHAR, 1, fp);
 }
 
+/**
+* @brief Open an imagefile provided by the mnist-database to be processed
+*
+* @param filePath Path to the image-file
+*
+* @return ImageIterator pointing to the first element
+*/
 ImageIterator *openImages(string filePath) {
 	ImageIterator *images = (ImageIterator *) malloc(sizeof(ImageIterator));
 	
@@ -53,16 +76,34 @@ ImageIterator *openImages(string filePath) {
 	return images;
 }
 
+/**
+* @brief Close the image-file which is used by the ImageIterator in the argument-list
+*
+* @param images ImageIterator pointing to the image-file
+*/
 void closeImages(ImageIterator *images) {
 	fclose(images->file);
 	free(images);
 }
 
+/**
+* @brief Resets the ImageIterator to the first position
+*
+* @param images ImageIterator pointing to the image-file
+*/
 void resetImageIterator(ImageIterator *images) {
 	fseek(images->file, IMAGE_OFFSET, SEEK_SET);
 	images->current = 0;
 }
 
+/**
+* @brief Iteratorfuction used to see whether there is another element to be used
+*
+* @param images ImageIterator pointing to the image-file
+*
+* @return 0 if no more elements could be read \n
+* 	  1 if there are elements left to read
+*/
 int hasNextImage(ImageIterator *images) {
 	if (images->current >= images->count) {
 		return 0;
@@ -71,6 +112,13 @@ int hasNextImage(ImageIterator *images) {
 	return 1;
 }
 
+/**
+* @brief Function to read the next Image encoded in unsigned chars
+*
+* @param images ImageIterator pointing to the image-file
+*
+* @return Pointer to unsigned char values, representing pixel values
+*/
 unsigned char *nextImage(ImageIterator *images) {	
 	unsigned char *image = (unsigned char *) malloc(images->columns * images->rows * sizeof(unsigned char));
 	
@@ -86,6 +134,13 @@ unsigned char *nextImage(ImageIterator *images) {
 	return image;
 }
 
+/**
+* @brief Open an labelfile provided by the mnist-database to be processed
+*
+* @param filePath Path to the label-file
+*
+* @return LabelIterator pointing to the first element
+*/
 LabelIterator *openLabels(string filePath) {
 	LabelIterator *labels = (LabelIterator *) malloc(sizeof(LabelIterator));
 	
@@ -110,17 +165,34 @@ LabelIterator *openLabels(string filePath) {
 	return labels;
 }
 
+/**
+* @brief Resets the LabelIterator to the first position
+*
+* @param labels LabelIterator pointing to the label-file
+*/
 void resetLabelIterator(LabelIterator *labels) {
 	fseek(labels->file, LABEL_OFFSET, SEEK_SET);
 	labels->current = 0;
 }
 
-
+/**
+* @brief Close the label-file which is used by the ImageIterator in the argument-list
+*
+* @param labels LabelIterator pointing to the label-file
+*/
 void closeLabels(LabelIterator *labels) {
 	fclose(labels->file);
 	free(labels);
 }
 
+/**
+* @brief Iteratorfuction used to see whether there is another element to be used
+*
+* @param labels LabelIterator pointing to the label-file
+*
+* @return 0 if no more elements could be read \n
+* 	  1 if there are elements left to read
+*/
 int hasNextLabel(LabelIterator *labels) {
 	if (labels->current >= labels->count) {
 		return 0;
@@ -129,6 +201,13 @@ int hasNextLabel(LabelIterator *labels) {
 	return 1;
 }
 
+/**
+* @brief Function to read the next Label
+*
+* @param labels ImageIterator pointing to the label-file
+*
+* @return unsigned char representing the label
+*/
 unsigned char nextLabel(LabelIterator *labels) {
 	unsigned char label;
 	readChar(labels->file, &label);
