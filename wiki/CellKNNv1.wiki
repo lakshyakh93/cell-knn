@@ -78,3 +78,7 @@ void classify(int k, Point *query, Point **training, int length, int dimension) 
 	query->label = majority_vote(sorted_list);
 }
 }}}
+
+Documentation is available at:
+http://www.dps.uibk.ac.at/~csae6550/documents/seq/ for the sequential (Cplusplus_kNN/) version
+http://www.dps.uibk.ac.at/~csae6550/documents/par/ for the parallel (Cell_kNN_v1/) version
