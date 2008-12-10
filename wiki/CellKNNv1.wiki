@@ -86,7 +86,7 @@ In the code repository you can find various implementations of the k-NN algorith
  * [http://code.google.com/p/cell-knn/source/browse/#svn/trunk/Cell_kNN_v1 Cell_kNN_v1]: a simple _parallel_ implementation written for the Cell BE.
 
 Executing the MNIST tests has shown, that the parallel version peforms drastically worse than the sequential implementation (*speedup of 0.002!*). We have identified the following possible reasons:
- * A single SPE transfers only about 0.5 kByte compared the possible 16 kByte per comparison of a single reference point to the query point.
+ * A single SPE transfers only about 0.5 kByte compared the possible 16 kByte per comparison of a single reference point to the query point. This comes from the fact that each SPE calculates the distance between a _part_ of the query and a _part_ of the reference point. The number of elements each SPE considers is given by number_of_dimensions / number_of_SPEs, which is in our case (28 x 28) / 6 = 130 = 522 Byte.
  * For each training point (60000 MNIST images) a thread for each SPE is created again and again. Meaning, 60000 x number_of_SPEs threads are created, destroyed and joined when classifying a query point (1 MNIST image). When classyfing all 10000 MNIST images in the test set, an overall of 60000 x number_of_SPEs x 10000 threads are spawned.
  * Since all threads are started more or less at the same time, there is a simultaneous access to the main memory from all SPEs, which leads to a bottleneck at the EIB through simultaneous DMA calls on the same memory adresses.
 
