@@ -11,7 +11,7 @@ For version 2.0 of the k-NN implementation we are planning to
 
 Considering the results obtained from analyzing the Cell k-NN 1.0 version, we want to realize the following optimizations:
  * Extend program to use SIMD (Single Instruction Multiple Data) features, i.e. calculate distance of 4 dimensions in one cycle.
- * Implement pipelining approach as described in section "Pipelining"
+ * Implement pipelining approach as described in section [CellKNNv2#Pipelining Pipelining].
 
 == Pipelining ==
 
