@@ -15,8 +15,8 @@
 template <class L, class T> class Points {
 	int count; //60000
 	int dimension; //28*28
-	int lsize; //28*28*sizeof(int) + padding
-	int vsize; //sizeof(int) + padding
+        int lsize; //sizeof(int) + padding
+        int vsize; //28*28*sizeof(int) + padding
 
 	L *labels; //unsigned char
 	T *values; //int
@@ -175,18 +175,18 @@ template<class L, class T> void Points<L, T>::setDimension(int dimension) {
 }
 
 /** 
-* @brief Getter function used to get the size of the data (pixel) (alligned to 16)
+* @brief Getter function used to get the size of the data (image) (alligned to 16)
 * 
-* @return Size of the data (pixel)
+* @return Size of the data (image)
 */
 template<class L, class T> int Points<L, T>::getVSize() {
 	return vsize;
 }
 
 /** 
-* @brief Getter function used to get the data for one image (alligned to 16)
+* @brief Getter function used to get the data for one label (alligned to 16)
 * 
-* @return Size of the data (image)
+* @return Size of the data (label)
 */
 template<class L, class T> int Points<L, T>::getLSize() {
 	return lsize;
