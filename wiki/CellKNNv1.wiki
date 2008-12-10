@@ -81,8 +81,8 @@ void classify(int k, Point *query, Point **training, int length, int dimension) 
 
 == Results ==
 
-In the code repository you can find various versions of an implementation of the k-NN algorithm:
- * [http://code.google.com/p/cell-knn/source/browse/#svn/trunk/Cell_kNN_v1 Cplusplu_kNN]: a _sequential_ implementation written in standard C++. Note, that the MNIST database uses little endian encoding.
+In the code repository you can find various implementations of the k-NN algorithm:
+ * [http://code.google.com/p/cell-knn/source/browse/#svn/trunk/Cell_kNN_v1 Cplusplu_kNN]: a _sequential_ implementation written in standard C++.
  * [http://code.google.com/p/cell-knn/source/browse/#svn/trunk/Cell_kNN_v1 Cell_kNN_v1]: a simple _parallel_ implementation written for the Cell BE.
 
 Executing the MNIST tests has shown, that the parallel version peforms drastically worse than the sequential implementation (*speedup of 0.002!*). We have identified the following possible reasons:
