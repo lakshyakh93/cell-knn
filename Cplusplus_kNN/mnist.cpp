@@ -36,8 +36,8 @@ void imageToPoint(Point<int, int> *point, unsigned char label,
 int main(int argc, char **argv) {
 	cout << "---------[Program start]----------" << endl;
 
-	if (argc < 3) {
-		fprintf(stderr, "Usage: mnist <k> <mnist path>\n");
+	if (argc < 5) {
+		fprintf(stderr, "Usage: mnist <k> <train> <test> <mnist path>\n");
 		return EXIT_FAILURE;
 	}
 
@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 
 	cout << "k = " << k << endl;
 
-	string base(argv[2]);
+	string base(argv[4]);
 
 	LabelIterator *trainLabels = openLabels(base + "train-labels-idx1-ubyte");
 	ImageIterator *trainImages = openImages(base + "train-images-idx3-ubyte");
@@ -67,17 +67,16 @@ int main(int argc, char **argv) {
 
 	unsigned char label;
 	unsigned char *image;
-	Points<int, int> points(trainImages->count, trainImages->rows
-			*trainImages->columns);
+
+	Points<int, int> points(trainImages->count, trainImages->rows*trainImages->columns);
 	cout << "size: " << trainImages->rows*trainImages->columns << "\tcount: "
 			<< trainImages->count << endl;
 
 	int i = 0;
 	Point<int, int> *trainPoint;
-	while (hasNextLabel(trainLabels) && hasNextImage(trainImages)) {
+	while (hasNextLabel(trainLabels) && hasNextImage(trainImages) && i<=atoi(argv[2])) {
 		image = nextImage(trainImages);
 		label = nextLabel(trainLabels);
-
 		trainPoint = points.getPoint(i++);
 		imageToPoint(trainPoint, label, image,
 				(trainImages->columns*trainImages->rows));
@@ -87,9 +86,10 @@ int main(int argc, char **argv) {
 	}
 
 #ifdef DEBUG
-	int temp, all = 0, good = 0;
+	int temp, all = 0, good = 0, count=0;
 #endif
-	while (hasNextLabel(testLabels) && hasNextImage(testImages)) {
+	while (hasNextLabel(testLabels) && hasNextImage(testImages) && count<atoi(argv[3])) {
+		count++;
 		image = nextImage(testImages);
 		label = nextLabel(testLabels);
 
