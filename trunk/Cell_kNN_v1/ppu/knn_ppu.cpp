@@ -23,8 +23,8 @@ int main(int argc, char **argv) {
 	cout << "---------[Program start]----------" << endl;
 #endif
 	
-	if (argc < 3) {
-		fprintf(stderr, "Usage: mnist <k> <mnist path>\n");
+	if (argc < 5) {
+		fprintf(stderr, "Usage: mnist <k> <train> <test> <mnist path>\n");
 		return EXIT_FAILURE;
 	}
 
@@ -37,19 +37,19 @@ int main(int argc, char **argv) {
 	cout << "k = " << k << endl;
 #endif
 	
-	string base(argv[2]);
+	string base(argv[4]);
 
-	LabelIterator *trainLabels = openLabels(base + "train-labels-idx1-ubyte");
-	ImageIterator *trainImages = openImages(base + "train-images-idx3-ubyte");
-	LabelIterator *testLabels = openLabels(base + "t10k-labels-idx1-ubyte");
-	ImageIterator *testImages = openImages(base + "t10k-images-idx3-ubyte");
+	LabelIterator *trainLabels = openLabels(base + "train-labels.idx1-ubyte");
+	ImageIterator *trainImages = openImages(base + "train-images.idx3-ubyte");
+	LabelIterator *testLabels = openLabels(base + "t10k-labels.idx1-ubyte");
+	ImageIterator *testImages = openImages(base + "t10k-images.idx3-ubyte");
 
 	
 #ifdef DEBUG
-	trainLabels->count = 500;
-	trainImages->count = 500;
-	testLabels->count = 2;
-	testImages->count = 2;
+	trainLabels->count = atoi(argv[2]);
+	trainImages->count = atoi(argv[2]);
+	testLabels->count = atoi(argv[3]);
+	testImages->count = atoi(argv[3]);
 #endif
 	
 	unsigned char label;
