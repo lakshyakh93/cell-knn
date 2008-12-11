@@ -1,0 +1,37 @@
+#summary Overview of the k-Nearest-Neighbour algorithm.
+
+{{{
+int euclidean(Point query, Point reference) {
+	int sum = 0;
+	
+        for (int i = 0; i < dimension; i++) {
+		int difference = reference.vector[i] - query.vector[i];
+		sum += difference * difference;
+	}
+	
+	return sum;
+}
+
+double distance(Point query, Point reference) {
+	return euclidean(query, reference);
+}
+
+void classify(int k, Point[] querySet, Point[] trainingSet) {
+    foreach (query in querySet) {
+        foreach (training in trainingSet) {
+            // Create a fixed sized sorted map of length k.
+            SortedMap map = new SortedMap();
+
+            // Calculate distance of test point to training point.
+            double distance = distance(query, training);
+		
+            // Insert training point into sorted list, discarding if training point
+            // not within k nearest neighbours to query point.
+            map.insert(distance, training);
+        }
+
+        // Do majority vote on k nearest neighbours.
+	query.label = majorityVote(map);
+    }
+}
+}}}
