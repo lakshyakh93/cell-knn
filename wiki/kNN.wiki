@@ -20,7 +20,7 @@ void classify(int k, Point[] querySet, Point[] trainingSet) {
     foreach (query in querySet) {
         foreach (training in trainingSet) {
             // Create a fixed sized sorted map of length k.
-            SortedMap map = new SortedMap();
+            SortedMap map = new SortedMap(k);
 
             // Calculate distance of test point to training point.
             double distance = distance(query, training);
