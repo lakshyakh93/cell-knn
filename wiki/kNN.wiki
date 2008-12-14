@@ -12,6 +12,8 @@ See below an implementation of the k-NN algorithm in a Java-like pseudo code.
 // We use the quadratic euclidean distance.
 double distance(Point query, Point reference) {
     int sum = 0;
+ 
+    // n is the number of dimensions in the vector space.
     int n = query.vector.length;
  
     // Loop 3.
