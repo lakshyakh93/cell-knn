@@ -4,7 +4,7 @@
 
 This project is part of the [https://orawww.uibk.ac.at/public_prod/owa/lfuonline_lv.details?lvnr_id_in=703701&sem_id_in=08W Praktikum für Verteilte und Parallele Systeme] course at the [http://uibk.ac.at University of Innsbruck], Austria.
 
-The team of this project implements a parallel version of the k-NN algorithm on IBM's Cell processor. To measure the performance of the implementation we classify hand written images contained in the [http://yann.lecun.com/exdb/mnist/ MNIST database]. We run our programs on a Sony Playstation 3, kindly provided by Gregor Burger. Therefor, the number of SPEs is limited to 6, instead of the possible 8 SPEs.
+The team of this project implements a parallel version of the k-NN algorithm on IBM's Cell processor. To measure the performance of the implementation we classify hand written images contained in the [http://yann.lecun.com/exdb/mnist/ MNIST database]. We run our programs on a Sony Playstation 3, kindly provided by Gregor Burger. On a Sony Playstation 3 the number of SPEs is limited to 6, instead of the possible 8 SPEs.
 
 = Presentation =
 
