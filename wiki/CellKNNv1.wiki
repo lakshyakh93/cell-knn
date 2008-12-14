@@ -8,7 +8,6 @@ In the first version of the Cell k-NN program we are going to implement a runnab
 As far as the k-NN algorithm is concerned, we are planning to implement it "as generic as possible", that means, we do not specifically adapt our implementation to the MNIST data sets. For interexchangeability we provide a generic interface consisting of header files, which we are planning to develop in cooperation with the [http://homepage.uibk.ac.at/~csaf3296/pvps08w/ Cuda k-NN Team], if possible.
 
 The general idea is illustrated in the following image:
-
 [http://cell-knn.googlecode.com/files/Distribution%20Simple.png]
 
 As you can see in the image above, an MNIST image is represented as an array of pixels with brightness values (0-255). The transformation of the original MNIST representation to a simple array representation is done in the preprocessing of the image. Then, the array is split into _n_ parts (_n_ is the number of SPEs available), for which each SPE calculates the distance of the specific part of the image to corresponding part of all other reference images. The distance measure where are going to use is the _(quadratic) euclidean distance_. The PPE then sums up all the _n_ distances returned by the SPEs and keeps track of the _k_ nearest images in a sorted list. After all distances between the reference images and the given image have been calculated, the PPE classifies the given image using the _k_ nearest reference images.
@@ -22,7 +21,7 @@ Since the effort for these operations is unknown up to now, version 2.0 of the p
 
 Another problem of the first approach may occur when using other distance metrics than the euclidean distance which do not calculate the distance locally but globally.
 
-See the following listing for a prototype of our implementation (contains pseudo code):
+See the following listing for a prototype of our implementation in a C-like pseudo code:
 
 {{{
 typedef struct {
