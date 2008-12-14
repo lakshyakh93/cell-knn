@@ -11,8 +11,8 @@ double distance(Point query, Point reference) {
 	
         // Loop 3.
         for (int i = 0; i < dimension; i++) {
-		int difference = reference.vector[i] - query.vector[i];
-		sum += difference * difference;
+            int difference = reference.vector[i] - query.vector[i];
+	    sum += difference * difference;
 	}
 	
 	return sum;
@@ -26,7 +26,7 @@ void classify(int k, Point[] querySet, Point[] trainingSet) {
             // Create a fixed sized sorted map of length k,
             // where we map the distance to a training point.
             SortedMap map = new SortedMap(k);
-
+ 
             // Calculate distance of test point to training point.
             double d = distance(query, training);
 		
@@ -34,7 +34,7 @@ void classify(int k, Point[] querySet, Point[] trainingSet) {
             // not within k nearest neighbours to query point.
             map.insert(d, training);
         }
-
+  
         // Do majority vote on k nearest neighbours and
         // assign the corresponding label to the query point.
 	query.label = majorityVote(map);
