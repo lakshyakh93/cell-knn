@@ -1,5 +1,7 @@
 #summary Overview of the k-Nearest-Neighbour algorithm.
 
+= Basic Idea = 
+
 The k-Nearest-Neighbour (k-NN) algorithm is a simple machine learning algorithm. The idea is to project objects to a vector space of _n_ dimensions. The algorithm compares a _query point_, i.e. an object to classify, to a set of already classified objects, often called the _training set_ (a set of _training points_). The algorithm determines the _k_ nearest neighbours in the vector space by calculating the distance of the query point to all training points according to some distance measure, like in our case the quadratic [http://en.wikipedia.org/wiki/Euclidean_distance euclidean distance]. A query point is classified by a majority vote of its neighbours, with the object being assigned to the label most common amongst its _k_ nearest neighbors. _k_ is a positive integer, typically small.
 
 See below an implementation of the k-NN algorithm in a Java like pseudo code.
@@ -10,7 +12,7 @@ double distance(Point query, Point reference) {
 	int sum = 0;
 	
         // Loop 3.
-        for (int i = 0; i < dimension; i++) {
+        for (int i = 0; i < query.vector.lenght; i++) {
             int difference = reference.vector[i] - query.vector[i];
 	    sum += difference * difference;
 	}
@@ -41,3 +43,5 @@ void classify(int k, Point[] querySet, Point[] trainingSet) {
     }
 }
 }}}
+
+= Parallel implementation variants =
