@@ -11,16 +11,16 @@ See below an implementation of the k-NN algorithm in a Java like pseudo code.
 {{{
 // We use the quadratic euclidean distance.
 double distance(Point query, Point reference) {
-	int sum = 0;
-        int n = query.vector.length;
+    int sum = 0;
+    int n = query.vector.length;
+ 
+    // Loop 3.
+    for (int i = 0; i < n; i++) {
+        int difference = reference.vector[i] - query.vector[i];
+        sum += difference * difference;
+    }
 	
-        // Loop 3.
-        for (int i = 0; i < n; i++) {
-            int difference = reference.vector[i] - query.vector[i];
-	    sum += difference * difference;
-	}
-	
-	return sum;
+    return sum;
 }
  
 void classify(int k, Point[] querySet, Point[] trainingSet) {
