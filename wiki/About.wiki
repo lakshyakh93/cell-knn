@@ -10,7 +10,7 @@ The team of this project implements a parallel version of the k-NN algorithm on 
 
  * You can download the introduction presentation (in german) [http://cell-knn.googlecode.com/files/IntroductionPresentation.pdf here].
  * A presentation showing our schedule can be found [http://cell-knn.googlecode.com/files/Schedule.pdf here]. Alternatively, visit the [Schedule schedule] wiki page.
- * A presentation briefly showing the results of the first parallel implementation [CellkNNv1 Cell k-NN 1.0] and a sketch of [CellkNNv2 Cell k-NN 2.0] can be found [http://cell-knn.googlecode.com/files/Cell%20k-NN%201.0.pdf here].
+ * A presentation briefly showing the results of the first parallel implementation [CellKNNv1 Cell k-NN 1.0] and a sketch of [CellKNNv2 Cell k-NN 2.0] can be found [http://cell-knn.googlecode.com/files/Cell%20k-NN%201.0.pdf here].
 
 = Results =
 
