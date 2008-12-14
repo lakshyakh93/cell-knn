@@ -6,7 +6,7 @@ This project is part of the [https://orawww.uibk.ac.at/public_prod/owa/lfuonline
 
 The team of this project implements a parallel version of the k-NN algorithm on IBM's Cell processor. To measure the performance of the implementation we classify hand written images contained in the [http://yann.lecun.com/exdb/mnist/ MNIST database]. We run our programs on a Sony Playstation 3, kindly provided by Gregor Burger. On a Sony Playstation 3 the number of SPEs is limited to 6, instead of the possible 8 SPEs.
 
-= Presentation =
+= Presentations =
 
  * You can download the introduction presentation (in german) [http://cell-knn.googlecode.com/files/IntroductionPresentation.pdf here].
  * A presentation showing our schedule can be found [http://cell-knn.googlecode.com/files/Schedule.pdf here]. Alternatively, visit the [Schedule schedule] wiki page.
