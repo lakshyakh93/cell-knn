@@ -4,16 +4,16 @@
 
 Software development for the cell microprocessor involves a mixture of conventional development practices for the POWER architecture-compatible PPU core, and novel software development challenges with regards to the functionally reduced SPU coprocessors.
 
-
 = Details =
 
 For making life easier we have created a Fedora 9 VMware image containing:
-  * Cell SDK 3.1
-  * Full Systemsimulator (Fedora 9)
-  * Cell IDE for Eclipse (fixed "21% Kernel Loading" problem)
-  * GNU-toolchain
+ * Cell SDK 3.1
+ * Full Systemsimulator (Fedora 9)
+ * Cell IDE for Eclipse (fixed "21% Kernel Loading" problem)
+ * GNU-toolchain
 
 The VMware image is compressed with "7z" and password protected.
 
 = Download =
+
 A [http://www.dps.uibk.ac.at/~csae6550/downloads/fedoradownloader.sh shell script] which downloads the compressed VMware image (divided into several parts) and merges the downloaded parts to a single .7z file can be download [http://www.dps.uibk.ac.at/~csae6550/downloads/fedoradownloader.sh here].
