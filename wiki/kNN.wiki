@@ -9,22 +9,6 @@ The idea is to project objects to a vector space of _n_ dimensions. The algorith
 See below an implementation of the k-NN algorithm in a Java-like pseudo code.
 
 {{{
-// We use the quadratic euclidean distance.
-double distance(Point query, Point reference) {
-    int sum = 0;
- 
-    // n is the number of dimensions in the vector space.
-    int n = query.vector.length;
- 
-    // Loop 3.
-    for (int i = 0; i < n; i++) {
-        int difference = reference.vector[i] - query.vector[i];
-        sum += difference * difference;
-    }
-	
-    return sum;
-}
- 
 void classify(int k, Point[] querySet, Point[] trainingSet) {
     // Loop 1.
     foreach (query in querySet) {
@@ -46,6 +30,22 @@ void classify(int k, Point[] querySet, Point[] trainingSet) {
         // assign the corresponding label to the query point.
 	query.label = majorityVote(map);
     }
+}
+ 
+// We use the quadratic euclidean distance.
+double distance(Point query, Point reference) {
+    int sum = 0;
+ 
+    // n is the number of dimensions in the vector space.
+    int n = query.vector.length;
+ 
+    // Loop 3.
+    for (int i = 0; i < n; i++) {
+        int difference = reference.vector[i] - query.vector[i];
+        sum += difference * difference;
+    }
+	
+    return sum;
 }
 }}}
 
