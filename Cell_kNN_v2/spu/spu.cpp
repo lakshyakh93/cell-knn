@@ -6,11 +6,7 @@
 #include <ctype.h>
 
 #include "spu_mfcio_ext.h"
-
-#define BUFFER_MAX_SIZE 65536   // Size of Buffer (in Bytes)
-#define DMA_MAX_SIZE 16384 // Maximum Size (in Bytes)
-
-#define waittag(tag_id) mfc_write_tag_mask(1<<tag_id);	mfc_read_tag_status_all();
+#include "include.h"
 
 uint32_t my_num, num_spes;
 
@@ -57,7 +53,7 @@ int main( )
 	
 	// STEP 1: read from PPE my number using BLOCKING mailbox read	
 	while( spu_stat_in_mbox()<=0 );
-	my_num   = spu_read_in_mbox(); //printf("1}SPE%d<-PPE: <%u>\n",my_num,my_num); fflush(stdout);
+	my_num   = spu_read_in_mbox();
 	num_spes = spu_read_in_mbox();
 	uint32_t size_data	= spu_read_in_mbox(); // Total number of Bytes to read
 	const uint32_t size_buffer	= spu_read_in_mbox(); // Size of Buffers
@@ -93,6 +89,8 @@ int main( )
 
 	ea_ls_prev = mfc_hl2ea( ea_h, ea_l);
 
+	printf("SPE%d:\tSetup complete\n", my_num); fflush(stdout);
+	
 	//*******new stuff****************
 	// SPEs (except SPE0) need to get address for buffer
 	if (my_num > 0) {
@@ -105,42 +103,26 @@ int main( )
 	
 		// decide amount to transfer
 		transfer = (size_buffer < size_data) ? size_buffer : size_data;
-		// transfer data
-		if (transfer != fillBuffer(buffer[i], tagId[i], ea_points, transfer)) {
-			printf("Error occured at transfer");
-			return -1;
-		}
 		// adjust remaining amount of data
 		size_data -= transfer;
-		
-		// adjust data source
-		if (my_num == 0) {
-			ea_points += transfer;
-		} else {
-			// adds local address of buffer to global address of SPU
-			ea_points = ea_ls_prev + spu_read_in_mbox();
-		}
-
-		// switch buffer
-		i = (i == 0) ? 1 : 0;
 		
 		// check if setup iterations are already done
 		// TODO check "iteration" conditions
 		// TODO error if size_data < buffer (no switching required)
-		if (iteration > 0) {
+		if (iteration > 1) {
 			// check if other dma finished ("i" is already switched)
 			waittag(tagId[i]);
+			printf("SPE%d:\tTransfer complete\n", my_num); fflush(stdout);
 			// send next SPU the address of filled buffer
 			if (my_num != num_spes-1) {
 				if (write_in_mbox((uint32_t)buffer[i], ea_mfc_next, tagId[i])!=1){
-					printf("SPE %d: fail to send buffer address to other SPE\n",my_num);fflush(stdout); return -1;
+					printf("SPE%d:\tfail to send buffer address to other SPE\n",my_num);fflush(stdout); return -1;
 				}
 			}
 			// send copy confirmation to previous SPU
 			if (my_num != 0) {
-				//printf("----2}SPE%d->SPE%d: <%x>\n",my_num,my_num+1,i);fflush(stdout);
 				if (write_in_mbox( i, ea_mfc_prev, tagId[i])!=1){
-					printf("SPE %d: fail to send MBOX to other SPE\n",my_num);fflush(stdout); return -1;
+					printf("SPE%d:\tfail to send confirmation to other SPE\n",my_num);fflush(stdout); return -1;
 				}
 			}
 			// do calcualtions on buffer
@@ -153,8 +135,27 @@ int main( )
 				}
 			}
 		} else {
-			iteration++;
+			// transfer data
+			if (transfer != fillBuffer(buffer[i], tagId[i], ea_points, transfer)) {
+				printf("Error occured at transfer");
+				return -1;
+			}
+			printf("SPE%d:\tTransfer %d initiated\n", my_num, iteration); fflush(stdout);
 		}
+		
+		// adjust data source
+		if (my_num == 0) {
+			ea_points += transfer;
+		} else {
+			// adds local address of buffer to global address of SPU
+			ea_points = ea_ls_prev + spu_read_in_mbox();
+		}
+		
+		// switch buffer
+		i = (i == 0) ? 1 : 0;
+		
+		// increase iteration counter
+		iteration++; // TODO overflow?
 	}
 
 	free_align(buffer[0]);
