@@ -1,10 +1,3 @@
-// -------------------------------------------------------------- 
-// (C)Copyright 2007,                                         
-// International Business Machines Corporation, 
-// All Rights Reserved.
-// Author: Eitan Peri, eitanp@il.ibm.com
-// -------------------------------------------------------------- 
-
 #include <stdio.h>
 #include <stddef.h>
 #include <stdint.h>
