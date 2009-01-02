@@ -137,7 +137,7 @@ int main() {
 	//********************************************************
 
 
-	int num, ack, num_spes= MAX_NUM_SPES;
+	int num, num_spes= MAX_NUM_SPES;
 	uint64_t ea, ls;
 
 	// TODO check for number of available SPEs
