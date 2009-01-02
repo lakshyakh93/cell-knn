@@ -41,7 +41,7 @@ int main() {
 
 	char **buffer;
 
-	printf("S<SPE %d: starts\n", my_num);
+	printf("SPE%d:\tstarted\n", my_num);
 	fflush(stdout);
 
 	if ((tagId[0]= mfc_tag_reserve())==MFC_TAG_INVALID) {
@@ -263,7 +263,7 @@ int main() {
 		if (iteration > 0) {
 			// check if dma0 finished
 			waittag(tagId[0]);
-			printf("SPE%d:\tTransfer0 complete\n", my_num);
+			printf("SPE%d:\tTransfer %d on Buffer 1 complete\n", my_num, iteration);
 			fflush(stdout);
 			// send next SPU the address of filled buffer
 			if (my_num != num_spes-1) {
@@ -288,7 +288,7 @@ int main() {
 
 			// check if dma1 finished
 			waittag(tagId[1]);
-			printf("SPE%d:\tTransfer0 complete\n", my_num);
+			printf("SPE%d:\tTransfer %d on Buffer 1 complete\n", my_num, iteration);
 			fflush(stdout);
 			// send next SPU the address of filled buffer
 			if (my_num != num_spes-1) {
@@ -333,7 +333,7 @@ int main() {
 				printf("Error occured at transfer");
 				return -1;
 			}
-			printf("SPE%d:\tTransfer %d initiated\n", my_num, iteration);
+			printf("SPE%d:\tTransfer %d on Buffer 0 initiated\n", my_num, iteration);
 			fflush(stdout);
 
 			
@@ -366,7 +366,7 @@ int main() {
 				printf("Error occured at transfer");
 				return -1;
 			}
-			printf("SPE%d:\tTransfer %d initiated\n", my_num, iteration);
+			printf("SPE%d:\tTransfer %d on Buffer 1 initiated\n", my_num, iteration);
 			fflush(stdout);
 
 
@@ -381,7 +381,7 @@ int main() {
 				printf("Error occured at transfer");
 				return -1;
 			}
-			printf("SPE%d:\tTransfer %d initiated\n", my_num, iteration);
+			printf("SPE%d:\tTransfer %d on Buffer 0 initiated\n", my_num, iteration);
 			fflush(stdout);
 
 			// adjust data source
@@ -402,7 +402,7 @@ int main() {
 				printf("Error occured at transfer");
 				return -1;
 			}
-			printf("SPE%d:\tTransfer %d initiated\n", my_num, iteration);
+			printf("SPE%d:\tTransfer %d on Buffer 1 initiated\n", my_num, iteration);
 			fflush(stdout);
 
 		}
@@ -415,7 +415,7 @@ int main() {
 	free_align(buffer[1]);
 	free_align(buffer);
 	
-	printf("E<SPE %d: ended\n", my_num);
+	printf("SPE%d:\tended\n", my_num);
 
 	return 0;
 }
