@@ -1,11 +1,3 @@
-
-// -------------------------------------------------------------- 
-// (C)Copyright 2007,                                         
-// International Business Machines Corporation, 
-// All Rights Reserved.
-// Author: Eitan Peri, eitanp@il.ibm.com
-// -------------------------------------------------------------- 
-
 #include <libmisc.h>
 #include <spu_intrinsics.h>
 #include <spu_mfcio.h>
@@ -165,38 +157,6 @@ int main( )
 		}
 	}
 
-	/*
-	printf("----2}SPE%d Points EA: <%llx>\n",my_num,ea_points);fflush(stdout);
-	mfc_get((void *) (buffer), ea_points, BUFFER_SIZE * sizeof(int), tagId, 0, 0);
-	waittag(tagId);
-	
-	if (my_num == 0) buffer[77] = 77;
-	
-	printf("---TEST}SPE%d: <%d>\n",my_num,buffer[77]);fflush(stdout);
-	
-	
-	printf("----2}SPE%d: transfered data and sent address\n",my_num);fflush(stdout);
-	*/
-	//********************************
-	/*
-	// STEP 3: 	write my number as acknowledge to PPE using BLOCKING maibox write	
-	printf("3}SPE%d->PPE: <%u>\n",my_num,my_num+1313000);
-	spu_write_out_mbox(my_num+1313000); //add dummy constant to pad MSb
-	
-	// STEP 4: 	write some number to the other SPE's mailbox using BLOCKING write
-	mbx = my_num + 1212000; //add dummy constant to pad MSb
-	printf("4}SPE%d->SPE: <%u>\n",my_num,mbx);
-
-	ret =  write_in_mbox( mbx, ea_mfc_next, tag_id);
-	if (ret!=1){
-		printf("SPE %d: fail to send MBOX to other SPE\n",my_num); return -1;
-	}
-
-	// STEP 5: 	read mailbox written by other SPE
-	data[0] = spu_read_in_mbox();
-
-	printf("5}SPE%d<-SPE: <%u>\n",my_num,data[0] );
-	*/
 	free_align(buffer[0]);
 	free_align(buffer[1]);
 
