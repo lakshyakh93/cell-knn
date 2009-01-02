@@ -15,14 +15,13 @@
 template <class L, class T> class Points {
 	int count; //60000
 	int dimension; //28*28
-        int lsize; //sizeof(int) + padding
-        int vsize; //28*28*sizeof(int) + padding
+    int lsize; //sizeof(L) + padding
+    int vsize; //28*28*sizeof(T) + padding
 
-	L *labels; //unsigned char
-	T *values; //int
+	char *labels; //unsigned char
+	char *values; //int
 	
-	int getVSize();
-	int getLSize();
+	// TODO check offset calculations
 public:
 	Points(int count, int dim);
 	virtual ~Points();
@@ -37,6 +36,9 @@ public:
 	void setCount(int count);
 	int getDimension();
 	void setDimension(int dimension);
+
+	int getVSize();
+	int getLSize();
 };
 
 /**
@@ -56,14 +58,12 @@ template<class L, class T> Points<L, T>::Points(int count, int dim) {
 	lsize = sizeof(L);
 	if (lsize % ALIGNMOD)
 		lsize = (static_cast<int>(lsize / ALIGNMOD) + 1) * ALIGNMOD;
-	labels = (L *) _malloc_align(lsize * count, 7);
-	lsize /= sizeof(L); //TODO !!!
+	labels = (char *) _malloc_align(lsize * count, 7);
 
 	vsize = dim * sizeof(T);
 	if (vsize % ALIGNMOD)
 		vsize = (static_cast<int>(vsize / ALIGNMOD) + 1) * ALIGNMOD;
-	values = (T *) _malloc_align(vsize * count, 7);
-	vsize /= sizeof(T); //TODO !!!
+	values = (char *) _malloc_align(vsize * count, 7);
 	//-----------------------------------------------
 	
 }
@@ -82,7 +82,7 @@ template<class L, class T> Points<L, T>::~Points() {
 */
 template<class L, class T> L* Points<L, T>::getLabel(int n) {
 	if (n < getCount())
-		return (labels + n * getLSize());
+		return (L*) (labels + n * getLSize());
 	else
 		return NULL;
 }
@@ -108,7 +108,7 @@ template<class L, class T> void Points<L, T>::setLabel(int n, L l) {
 */
 template<class L, class T> T* Points<L, T>::getValues(int n) {
 	if (n < getCount())
-		return (values + n * getVSize());
+		return (T*) (values + n * getVSize());
 	else
 		return NULL;
 }
