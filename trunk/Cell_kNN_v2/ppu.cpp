@@ -10,6 +10,7 @@
 
 #include <unistd.h>
 
+#include "include.h"
 #include "KNN.h"
 #include "Point.h"
 #include "Points.h"
@@ -142,7 +143,7 @@ int main() {
 	// TODO check for number of available SPEs
 	num_spes = MAX_NUM_SPES;
 
-	printf("S)PPE:) Start with huge hope\n");
+	printf("PPE:\t Start program\n");
 
 	// create SPE context and load SPE program into the SPE context
 	for (num=0; num<num_spes; num++) {
@@ -176,18 +177,22 @@ int main() {
 		}
 	}
 
-	int dimension = points.getDimension(); 
-	int count = points.getCount();
+	//uint32_t dimension = points.getDimension(); 
+	//uint32_t count = points.getCount();
+	uint32_t size_data = points.getCount() * points.getVSize();
+	uint32_t size_buffer = (BUFFER_MAX_SIZE / points.getVSize()) * points.getVSize(); 
 	
 	// STEP 1: send each SPE its number using BLOCKING mailbox write
 	for (num=0; num<num_spes; num++) {
-		printf("1)PPE->SPE%d: <%u>\n", num, num);
+		printf("PPE -> SPE%d:\t <%u>\n", num, num);
 
 		// write 1 entry to in_mailbox - we don't know if we have availalbe space so use blocking
 		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&num, 1, SPE_MBOX_ALL_BLOCKING);
 		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&num_spes, 1, SPE_MBOX_ALL_BLOCKING);
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&count, 1, SPE_MBOX_ALL_BLOCKING);
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&dimension, 1, SPE_MBOX_ALL_BLOCKING);
+		//spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&count, 1, SPE_MBOX_ALL_BLOCKING);
+		//spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&dimension, 1, SPE_MBOX_ALL_BLOCKING);
+		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&size_data, 1, SPE_MBOX_ALL_BLOCKING);
+		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&size_buffer, 1, SPE_MBOX_ALL_BLOCKING);
 	}
 
 	// STEP 2: send SPE0 the EA of the points array
@@ -204,23 +209,10 @@ int main() {
 		ea_prev	= (uint64_t)data[(num==0)?num_spes-1:num-1].mfc_ctl;
 		ls		= (uint64_t)data[(num==0)?num_spes-1:num-1].spu_ls;
 
-		//printf("2)PPE->SPE%d: <%llx>\n", num, ea);		
-
 		// write 4 entries to in_mailbox - blocking
 		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&ea_next, 2, SPE_MBOX_ALL_BLOCKING);
 		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&ea_prev, 2, SPE_MBOX_ALL_BLOCKING);
 		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&ls, 2, SPE_MBOX_ALL_BLOCKING);
-	}
-
-	// STEP 3: 	read acknowledge from each SPE using NON-BLOCKING mailbox read
-	for (num=0; num<num_spes; num++) {
-		while (!spe_out_mbox_status(data[num].spe_ctx)) {
-
-			// PPE can do other things meanwhile before check status again
-		};
-		spe_out_mbox_read(data[num].spe_ctx, (uint32_t*)&ack, 1);
-
-		printf("3)PPE<-SPE%u: <%d>\n", num, ack);
 	}
 
 	// wait for all SPEs to complete
@@ -238,7 +230,7 @@ int main() {
 		}
 	}
 
-	printf("E)PPE:) Complete with great success\n");
+	printf("PPE:\t Program finished\n");
 
 	return (0);
 }
