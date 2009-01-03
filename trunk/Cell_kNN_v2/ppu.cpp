@@ -31,6 +31,8 @@ typedef struct spu_data {
 	spe_context_ptr_t spe_ctx;
 	pthread_t pthread;
 	volatile spe_spu_control_area_t* mfc_ctl;
+	volatile spe_sig_notify_1_area_t *ea_sig1; // EA pointer to SPE's singnal1 MMIO registers
+	volatile spe_sig_notify_2_area_t *ea_sig2; // EA pointer to SPE's singnal2 MMIO registers
 	volatile void* spu_ls;
 } spu_data_t;
 
@@ -102,8 +104,8 @@ int main() {
 		exit(-1);
 	}
 
-	trainLabels->count = 100;
-	trainImages->count = 100;
+	trainLabels->count = 200;
+	trainImages->count = 200;
 	testLabels->count = 10;
 	testImages->count = 10;
 
@@ -147,7 +149,7 @@ int main() {
 
 	// create SPE context and load SPE program into the SPE context
 	for (num=0; num<num_spes; num++) {
-		if ((data[num].spe_ctx = spe_context_create(SPE_MAP_PS, NULL))==NULL) {
+		if ((data[num].spe_ctx = spe_context_create(SPE_MAP_PS|SPE_CFG_SIGNOTIFY1_OR, NULL))==NULL) {
 			perror("Failed creating context");
 			exit(1);
 		}
@@ -174,6 +176,12 @@ int main() {
 		if ((data[num].spu_ls = spe_ls_area_get(data[num].spe_ctx))==NULL) {
 			perror("Failed mapping SPU local store");
 			exit(1);
+		}
+		if ((data[num].ea_sig1 = (spe_sig_notify_1_area_t*)spe_ps_area_get( data[num].spe_ctx, SPE_SIG_NOTIFY_1_AREA))==NULL){
+			perror ("Failed mapping Signal1 area");	exit (1);
+		}
+		if ((data[num].ea_sig2 = (spe_sig_notify_2_area_t*)spe_ps_area_get( data[num].spe_ctx, SPE_SIG_NOTIFY_2_AREA))==NULL){
+			perror ("Failed mapping Signal2 area");	exit (1);
 		}
 	}
 
@@ -202,16 +210,16 @@ int main() {
 
 	// write 2 entries to in_mailbox - blocking
 	spe_in_mbox_write(data[0].spe_ctx, (uint32_t*)&ea, 2, SPE_MBOX_ALL_BLOCKING);
-	uint64_t ea_next, ea_prev;
+	uint64_t ea_next, sig2_prev;
 	for (num=0; num<num_spes; num++) {
 		
 		ea_next	= (uint64_t)data[(num==num_spes-1)?0:num+1].mfc_ctl;
-		ea_prev	= (uint64_t)data[(num==0)?num_spes-1:num-1].mfc_ctl;
+		sig2_prev	= (uint64_t)data[(num==0)?num_spes-1:num-1].ea_sig2;
 		ls		= (uint64_t)data[(num==0)?num_spes-1:num-1].spu_ls;
 
 		// write 4 entries to in_mailbox - blocking
 		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&ea_next, 2, SPE_MBOX_ALL_BLOCKING);
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&ea_prev, 2, SPE_MBOX_ALL_BLOCKING);
+		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&sig2_prev, 2, SPE_MBOX_ALL_BLOCKING);
 		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&ls, 2, SPE_MBOX_ALL_BLOCKING);
 	}
 
