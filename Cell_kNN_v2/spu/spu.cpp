@@ -33,22 +33,22 @@ uint32_t fillBuffer(char *buffer, uint32_t tagId, uint64_t address, uint32_t tra
 
 uint32_t calculate(char *buffer) {
 	/*if (my_num == 0) {
-		buffer[3] = 'c';
-	} else {
-		if (buffer[3] == 'c') {
-			printf("SPE%d:\tBuffer[3] == c\n", my_num);
-			fflush(stdout);
-		} else {
-			printf("SPE%d:\tBuffer[3] != c\n", my_num);
-			fflush(stdout);
-		}
-	}*/
+	 buffer[3] = 'c';
+	 } else {
+	 if (buffer[3] == 'c') {
+	 printf("SPE%d:\tBuffer[3] == c\n", my_num);
+	 fflush(stdout);
+	 } else {
+	 printf("SPE%d:\tBuffer[3] != c\n", my_num);
+	 fflush(stdout);
+	 }
+	 }*/
 	return 0;
 }
 
 int main() {
 	uint32_t ea_h, ea_l, tagId[2];
-	uint64_t ea_mfc_next, ea_mfc_prev, ea_ls_prev, ea_points;
+	uint64_t ea_mfc_next, ea_sig2_prev, ea_ls_prev, ea_points;
 
 	char **buffer;
 
@@ -71,7 +71,6 @@ int main() {
 		printf("SPE: ERROR can't allocate tag ID\n");
 		return -1;
 	}
-
 
 	buffer = (char **) malloc_align(2 * sizeof(char *), 7);
 	buffer[0] = (char *) malloc_align(size_buffer, 7);
@@ -97,7 +96,7 @@ int main() {
 	ea_h = spu_read_in_mbox(); // read EA lower bits 
 	ea_l = spu_read_in_mbox(); // read EA higher bits 
 
-	ea_mfc_prev = mfc_hl2ea(ea_h, ea_l);
+	ea_sig2_prev = mfc_hl2ea(ea_h, ea_l);
 
 	ea_h = spu_read_in_mbox(); // read EA lower bits 
 	ea_l = spu_read_in_mbox(); // read EA higher bits 
@@ -114,18 +113,18 @@ int main() {
 		ea_points = ea_ls_prev + spu_read_in_mbox();
 	}
 
-	uint32_t transfer, iteration = 0;
+	uint32_t transfer[2], iteration = 0;
 	while (size_data > 0) {
 
-		// check if setup iterations are already done
-		// TODO check "iteration" conditions
-		// TODO error if size_data < buffer (no switching required)
-
+		// check if setup iteration is already done
 		if (iteration > 0) {
 			// check if dma0 finished
-			waittag(tagId[0]);
-			printf("SPE%d:\tTransfer %d on Buffer 0 complete\n", my_num, iteration);
+			if (size_data > 0) //TODO check condition
+				waittag(tagId[0]);
+			printf("SPE%d:\tTransfer %d on Buffer 0 complete\n", my_num, iteration-1);
 			fflush(stdout);
+			// adjust remaining amount of data
+			size_data -= transfer[0];
 			// send next SPU the address of filled buffer
 			if (my_num != num_spes-1) {
 				if (write_in_mbox((uint32_t)buffer[0], ea_mfc_next, tagId[0])!=1) {
@@ -136,7 +135,7 @@ int main() {
 			}
 			// send copy confirmation to previous SPU
 			if (my_num != 0) {
-				if (write_in_mbox(0, ea_mfc_prev, tagId[0])!=1) {
+				if (write_signal2(0, ea_sig2_prev, tagId[0])!=1) {
 					printf("SPE%d:\tfail to send confirmation to other SPE\n", my_num);
 					fflush(stdout);
 					return -1;
@@ -147,9 +146,12 @@ int main() {
 			calculate(buffer[0]);
 
 			// check if dma1 finished
-			waittag(tagId[1]);
-			printf("SPE%d:\tTransfer %d on Buffer 1 complete\n", my_num, iteration);
+			if (size_data > 0) //TODO check condition
+				waittag(tagId[1]);
+			printf("SPE%d:\tTransfer %d on Buffer 1 complete\n", my_num, iteration-1);
 			fflush(stdout);
+			// adjust remaining amount of data
+			size_data -= transfer[1];
 			// send next SPU the address of filled buffer
 			if (my_num != num_spes-1) {
 				if (write_in_mbox((uint32_t)buffer[1], ea_mfc_next, tagId[1])!=1) {
@@ -160,7 +162,7 @@ int main() {
 			}
 			// send copy confirmation to previous SPU
 			if (my_num != 0) {
-				if (write_in_mbox(1, ea_mfc_prev, tagId[1])!=1) {
+				if (write_signal2(1, ea_sig2_prev, tagId[1])!=1) {
 					printf("SPE%d:\tfail to send confirmation to other SPE\n", my_num);
 					fflush(stdout);
 					return -1;
@@ -169,69 +171,70 @@ int main() {
 
 			// check if buffer is already copied (may be overwritten before it's copied otherwise)
 			if (my_num != num_spes-1) {
-				if (0 != spu_read_in_mbox()) {
-					printf("SPE%d:\tconfirmation failed\n", my_num);
+				uint32_t temp;
+				if ((temp = spu_read_signal2())!=0) {
+					printf("SPE%d:\tconfirmation failed, received %d, wanted 0\n", my_num, temp);
 					fflush(stdout);
 					return -1;
 				}
 			}
-			// adjust data source
-			if (my_num == 0) {
-				ea_points += transfer;
-			} else {
-				// adds local address of buffer to global address of SPU
-				ea_points = ea_ls_prev + spu_read_in_mbox();
-			}
 			// decide amount to transfer
-			transfer = (size_buffer < size_data) ? size_buffer : size_data;
-			// adjust remaining amount of data
-			size_data -= transfer;
-			// transfer data
-			if (transfer != fillBuffer(buffer[0], tagId[0], ea_points, transfer)) {
-				printf("Error occured at transfer");
-				return -1;
+			transfer[0] = (size_buffer < size_data) ? size_buffer : size_data;
+			//if there is something to transfer then
+			if (transfer[0] > 0) {
+				// adjust data source
+				if (my_num == 0) {
+					ea_points += transfer[1];
+				} else {
+					// adds local address of buffer to global address of SPU
+					ea_points = ea_ls_prev + spu_read_in_mbox();
+				}
+				// transfer data
+				if (transfer[0] != fillBuffer(buffer[0], tagId[0], ea_points, transfer[0])) {
+					printf("Error occured at transfer");
+					return -1;
+				}
+				printf("SPE%d:\tTransfer %d on Buffer 0 initiated\n", my_num, iteration);
+				fflush(stdout);
 			}
-			printf("SPE%d:\tTransfer %d on Buffer 0 initiated\n", my_num, iteration);
-			fflush(stdout);
 
 			// do calcualtions on buffer
 			calculate(buffer[1]);
 
 			// check if buffer is already copied (may be overwritten before it's copied otherwise)
 			if (my_num != num_spes-1) {
-				if (1 != spu_read_in_mbox()) {
-					printf("SPE%d:\tconfirmation failed\n", my_num);
+				uint32_t temp;
+				if ((temp = spu_read_signal2())!=1) {
+					printf("SPE%d:\tconfirmation failed, received %d, wanted 1\n", my_num, temp);
 					fflush(stdout);
 					return -1;
 				}
 			}
-			// adjust data source
-			if (my_num == 0) {
-				ea_points += transfer;
-			} else {
-				// adds local address of buffer to global address of SPU
-				ea_points = ea_ls_prev + spu_read_in_mbox();
-			}
 			// decide amount to transfer
-			transfer = (size_buffer < size_data) ? size_buffer : size_data;
-			// adjust remaining amount of data
-			size_data -= transfer;
-			// transfer data
-			if (transfer != fillBuffer(buffer[1], tagId[1], ea_points, transfer)) {
-				printf("Error occured at transfer");
-				return -1;
+			transfer[1] = (size_buffer < size_data-transfer[0]) ? size_buffer : size_data-transfer[0];
+			//if there is something to transfer then
+			if (transfer[1] > 0) {
+				// adjust data source
+				if (my_num == 0) {
+					ea_points += transfer[0];
+				} else {
+					// adds local address of buffer to global address of SPU
+					ea_points = ea_ls_prev + spu_read_in_mbox();
+				}
+				// transfer data
+				if (transfer[1] != fillBuffer(buffer[1], tagId[1], ea_points, transfer[1])) {
+					printf("Error occured at transfer");
+					return -1;
+				}
+				printf("SPE%d:\tTransfer %d on Buffer 1 initiated\n", my_num, iteration);
+				fflush(stdout);
 			}
-			printf("SPE%d:\tTransfer %d on Buffer 1 initiated\n", my_num, iteration);
-			fflush(stdout);
-
 		} else {
 			// decide amount to transfer
-			transfer = (size_buffer < size_data) ? size_buffer : size_data;
-			// adjust remaining amount of data
-			size_data -= transfer;
+			transfer[0] = (size_buffer < size_data) ? size_buffer : size_data;
 
 			// transfer data
-			if (transfer != fillBuffer(buffer[0], tagId[0], ea_points, transfer)) {
+			if (transfer[0] != fillBuffer(buffer[0], tagId[0], ea_points, transfer[0])) {
 				printf("Error occured at transfer");
 				return -1;
 			}
@@ -240,19 +243,17 @@ int main() {
 
 			// adjust data source
 			if (my_num == 0) {
-				ea_points += transfer;
+				ea_points += transfer[0];
 			} else {
 				// adds local address of buffer to global address of SPU
 				ea_points = ea_ls_prev + spu_read_in_mbox();
 			}
 
 			// decide amount to transfer
-			transfer = (size_buffer < size_data) ? size_buffer : size_data;
-			// adjust remaining amount of data
-			size_data -= transfer;
+			transfer[1] = (size_buffer < size_data-transfer[0]) ? size_buffer : size_data-transfer[0];
 
 			// transfer data
-			if (transfer != fillBuffer(buffer[1], tagId[1], ea_points, transfer)) {
+			if (transfer[1] != fillBuffer(buffer[1], tagId[1], ea_points, transfer[1])) {
 				printf("Error occured at transfer");
 				return -1;
 			}
@@ -264,6 +265,8 @@ int main() {
 		// increase iteration counter
 		iteration++; // TODO check for overflow
 	}
+	printf("SPE%d:\tComputations finished\n", my_num);
+	fflush(stdout);
 
 	free_align(buffer[0]);
 	free_align(buffer[1]);
