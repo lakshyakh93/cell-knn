@@ -5,8 +5,9 @@
 #include <stdio.h>
 #include <ctype.h>
 
+//#include "KNN.h"
 #include "spu_mfcio_ext.h"
-#include "include.h"
+#include "cellknn.h"
 
 uint32_t my_num, num_spes;
 
