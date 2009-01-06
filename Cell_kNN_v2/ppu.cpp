@@ -10,12 +10,10 @@
 
 #include <unistd.h>
 
-#include "include.h"
+#include "cellknn.h"
 #include "KNN.h"
-#include "Point.h"
-#include "Points.h"
 #include "libMnist.cpp" // TODO why .cpp?
-#define MAX_NUM_SPES 8
+#define MAX_NUM_SPES 6
 #define DEBUG
 #define PRETTY_PRINT
 
