@@ -24,6 +24,7 @@ template <class L, class T> class Points {
 	// TODO check offset calculations
 public:
 	Points(int count, int dim);
+	Points(int count, int dim, char *labels, char* values);
 	virtual ~Points();
 
 	L *getLabel(int n);
@@ -64,6 +65,30 @@ template<class L, class T> Points<L, T>::Points(int count, int dim) {
 	if (vsize % ALIGNMOD)
 		vsize = (static_cast<int>(vsize / ALIGNMOD) + 1) * ALIGNMOD;
 	values = (char *) _malloc_align(vsize * count, 7);
+	//-----------------------------------------------
+	
+}
+
+/**
+* @brief Constructor for the Points class.
+* Does not allocate any space, but sets references to existing arrays.
+*/
+template<class L, class T> Points<L, T>::Points(int count, int dim, char *labels, char* values) {
+	setCount(0);
+	setDimension(0);
+	
+	//-----------------------------------------------
+	//----------CELL BE Stuff------------------------
+	//-----------------------------------------------
+	lsize = sizeof(L);
+	if (lsize % ALIGNMOD)
+		lsize = (static_cast<int>(lsize / ALIGNMOD) + 1) * ALIGNMOD;
+	this->labels = labels;// TODO check
+
+	vsize = dim * sizeof(T);
+	if (vsize % ALIGNMOD)
+		vsize = (static_cast<int>(vsize / ALIGNMOD) + 1) * ALIGNMOD;
+	this->values = values;// TODO check
 	//-----------------------------------------------
 	
 }
