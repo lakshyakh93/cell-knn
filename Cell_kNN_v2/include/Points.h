@@ -4,8 +4,6 @@
 #include "Point.h"
 #include "cellknn.h"
 #include <stdio.h>
-#include <malloc_align.h>
-#include <free_align.h>
 
 // L ... label type
 // T ... value type
@@ -59,12 +57,22 @@ template<class L, class T> Points<L, T>::Points(int count, int dim) {
 	lsize = sizeof(L);
 	if (lsize % ALIGNMOD)
 		lsize = (static_cast<int>(lsize / ALIGNMOD) + 1) * ALIGNMOD;
+#ifdef PPU
 	labels = (char *) _malloc_align(lsize * count, 7);
+#endif
+#ifdef SPU
+	labels = (char *) malloc_align(lsize * count, 7);
+#endif
 
 	vsize = dim * sizeof(T);
 	if (vsize % ALIGNMOD)
 		vsize = (static_cast<int>(vsize / ALIGNMOD) + 1) * ALIGNMOD;
+#ifdef PPU
 	values = (char *) _malloc_align(vsize * count, 7);
+#endif
+#ifdef SPU
+	values = (char *) malloc_align(vsize * count, 7);
+#endif
 	//-----------------------------------------------
 	
 }
@@ -94,8 +102,14 @@ template<class L, class T> Points<L, T>::Points(int count, int dim, char *labels
 }
 
 template<class L, class T> Points<L, T>::~Points() {
-	_free_align(labels);
-	_free_align(values);
+#ifdef PPU
+		_free_align(labels);
+		_free_align(values);
+#endif
+#ifdef SPU
+		free_align(labels);
+		free_align(values);
+#endif
 }
 
 /**
