@@ -68,6 +68,18 @@ void *spu_pthread(void *arg) {
 	pthread_exit(NULL);
 }
 
+uint32_t calculate(char *buffer) {
+	int i, temp=0;
+
+	for (i = 0; i < 768*4; i++)
+		temp+=buffer[i];
+
+	printf("%PPE sums to %d\n", temp);
+
+	return 0;
+}
+
+
 //============================================================================
 // main
 //============================================================================
@@ -102,8 +114,8 @@ int main() {
 		exit(-1);
 	}
 
-	trainLabels->count = 2000;
-	trainImages->count = 2000;
+	trainLabels->count = 10000;
+	trainImages->count = 10000;
 	testLabels->count = 10;
 	testImages->count = 10;
 
@@ -205,6 +217,7 @@ int main() {
 	//         send each SPE the effective address of other SPE's MFC area
 	//         use NON-BLOCKING mailbox write after first verifying availability of space
 	ea = (uint64_t)points.getValues(0);
+	calculate((char *)points.getValues(0));
 
 	// write 2 entries to in_mailbox - blocking
 	spe_in_mbox_write(data[0].spe_ctx, (uint32_t*)&ea, 2, SPE_MBOX_ALL_BLOCKING);

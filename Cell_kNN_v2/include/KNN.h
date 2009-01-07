@@ -19,8 +19,6 @@ class KNN {
 	L majorityVote(SortedList<double, L> &sortedlist);
 	double distance(Point<L, T> &testPoint,	Point<L, T> &trainPoint);
 public:
-	virtual ~KNN();
-
 	// Updated label of testPoint therefore no return value.
 	void classify(Point<L, T> &testPoint, Points<L, T> &trainPoints, int k);
 };
