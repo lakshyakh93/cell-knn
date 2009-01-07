@@ -12,8 +12,10 @@
 #include "cellknn.h"
 
 uint32_t my_num, num_spes;
+volatile char buffer0[BUFFER_MAX_SIZE] __attribute__((aligned(128)));
+volatile char buffer1[BUFFER_MAX_SIZE] __attribute__((aligned(128)));
 
-uint32_t fillBuffer(char *buffer, uint32_t tagId, uint64_t address, uint32_t transfer) {
+uint32_t fillBuffer(volatile char *buffer, uint32_t tagId, uint64_t address, uint32_t transfer) {
 	uint32_t offset = 0;
 
 	if (transfer <= 0)
@@ -34,18 +36,14 @@ uint32_t fillBuffer(char *buffer, uint32_t tagId, uint64_t address, uint32_t tra
 	return offset;
 }
 
-uint32_t calculate(char *buffer) {
-	/*if (my_num == 0) {
-	 buffer[3] = 'c';
-	 } else {
-	 if (buffer[3] == 'c') {
-	 printf("SPE%d:\tBuffer[3] == c\n", my_num);
-	 fflush(stdout);
-	 } else {
-	 printf("SPE%d:\tBuffer[3] != c\n", my_num);
-	 fflush(stdout);
-	 }
-	 }*/
+uint32_t calculate(volatile char *buffer) {
+	int i, temp=0;
+
+	for (i = 0; i < 768*4; i++)
+		temp+=buffer[i];
+
+	printf("%d\n", temp);
+
 	return 0;
 }
 
@@ -63,8 +61,10 @@ int main() {
 	uint32_t size_data = spu_read_in_mbox(); // Total number of Bytes to read
 	const uint32_t size_buffer = spu_read_in_mbox(); // Size of Buffers
 
+#ifdef PRETTY_PRINT
 	printf("SPE%d:\tstarted\n", my_num);
 	fflush(stdout);
+#endif
 
 	if ((tagId[0]= mfc_tag_reserve())==MFC_TAG_INVALID) {
 		printf("SPE: ERROR can't allocate tag ID\n");
@@ -75,9 +75,7 @@ int main() {
 		return -1;
 	}
 
-	buffer = (char **) malloc_align(2 * sizeof(char *), 7);
-	buffer[0] = (char *) malloc_align(size_buffer, 7);
-	buffer[1] = (char *) malloc_align(size_buffer, 7);
+	//	printf("%d bla %d\n",buffer0,buffer1);
 
 	// STEP 2: receive from PPE the effective address of previous SPE's MFC area and previous SPE's LS
 	//             use BLOCKING mailbox
@@ -106,8 +104,10 @@ int main() {
 
 	ea_ls_prev = mfc_hl2ea(ea_h, ea_l);
 
+#ifdef PRETTY_PRINT
 	printf("SPE%d:\tSetup complete\n", my_num);
 	fflush(stdout);
+#endif
 
 	//*******new stuff****************
 	// SPEs (except SPE0) need to get address for buffer
@@ -124,13 +124,15 @@ int main() {
 			// check if dma0 finished
 			if (size_data > 0) //TODO check condition
 				waittag(tagId[0]);
+#ifdef PRETTY_PRINT
 			printf("SPE%d:\tTransfer %d on Buffer 0 complete\n", my_num, iteration-1);
 			fflush(stdout);
+#endif
 			// adjust remaining amount of data
 			size_data -= transfer[0];
 			// send next SPU the address of filled buffer
 			if (my_num != num_spes-1) {
-				if (write_in_mbox((uint32_t)buffer[0], ea_mfc_next, tagId[0])!=1) {
+				if (write_in_mbox((uint32_t)buffer0, ea_mfc_next, tagId[0])!=1) {
 					printf("SPE%d:\tfail to send buffer address to other SPE\n", my_num);
 					fflush(stdout);
 					return -1;
@@ -146,18 +148,20 @@ int main() {
 			}
 
 			// do calcualtions on buffer
-			calculate(buffer[0]);
+			calculate(buffer0);
 
 			// check if dma1 finished
 			if (size_data > 0) //TODO check condition
 				waittag(tagId[1]);
+#ifdef PRETTY_PRINT
 			printf("SPE%d:\tTransfer %d on Buffer 1 complete\n", my_num, iteration-1);
 			fflush(stdout);
+#endif
 			// adjust remaining amount of data
 			size_data -= transfer[1];
 			// send next SPU the address of filled buffer
 			if (my_num != num_spes-1) {
-				if (write_in_mbox((uint32_t)buffer[1], ea_mfc_next, tagId[1])!=1) {
+				if (write_in_mbox((uint32_t)buffer1, ea_mfc_next, tagId[1])!=1) {
 					printf("SPE%d:\tfail to send buffer address to other SPE\n", my_num);
 					fflush(stdout);
 					return -1;
@@ -193,16 +197,18 @@ int main() {
 					ea_points = ea_ls_prev + spu_read_in_mbox();
 				}
 				// transfer data
-				if (transfer[0] != fillBuffer(buffer[0], tagId[0], ea_points, transfer[0])) {
+				if (transfer[0] != fillBuffer(buffer0, tagId[0], ea_points, transfer[0])) {
 					printf("Error occured at transfer");
 					return -1;
 				}
+#ifdef PRETTY_PRINT
 				printf("SPE%d:\tTransfer %d on Buffer 0 initiated\n", my_num, iteration);
 				fflush(stdout);
+#endif
 			}
 
 			// do calcualtions on buffer
-			calculate(buffer[1]);
+			calculate(buffer1);
 
 			// check if buffer is already copied (may be overwritten before it's copied otherwise)
 			if (my_num != num_spes-1) {
@@ -225,24 +231,28 @@ int main() {
 					ea_points = ea_ls_prev + spu_read_in_mbox();
 				}
 				// transfer data
-				if (transfer[1] != fillBuffer(buffer[1], tagId[1], ea_points, transfer[1])) {
+				if (transfer[1] != fillBuffer(buffer1, tagId[1], ea_points, transfer[1])) {
 					printf("Error occured at transfer");
 					return -1;
 				}
+#ifdef PRETTY_PRINT
 				printf("SPE%d:\tTransfer %d on Buffer 1 initiated\n", my_num, iteration);
 				fflush(stdout);
+#endif
 			}
 		} else {
 			// decide amount to transfer
 			transfer[0] = (size_buffer < size_data) ? size_buffer : size_data;
 
 			// transfer data
-			if (transfer[0] != fillBuffer(buffer[0], tagId[0], ea_points, transfer[0])) {
+			if (transfer[0] != fillBuffer(buffer0, tagId[0], ea_points, transfer[0])) {
 				printf("Error occured at transfer");
 				return -1;
 			}
+#ifdef PRETTY_PRINT
 			printf("SPE%d:\tTransfer %d on Buffer 0 initiated\n", my_num, iteration);
 			fflush(stdout);
+#endif
 
 			// adjust data source
 			if (my_num == 0) {
@@ -256,24 +266,23 @@ int main() {
 			transfer[1] = (size_buffer < size_data-transfer[0]) ? size_buffer : size_data-transfer[0];
 
 			// transfer data
-			if (transfer[1] != fillBuffer(buffer[1], tagId[1], ea_points, transfer[1])) {
+			if (transfer[1] != fillBuffer(buffer1, tagId[1], ea_points, transfer[1])) {
 				printf("Error occured at transfer");
 				return -1;
 			}
+#ifdef PRETTY_PRINT
 			printf("SPE%d:\tTransfer %d on Buffer 1 initiated\n", my_num, iteration);
 			fflush(stdout);
-
+#endif
 		}
 
 		// increase iteration counter
 		iteration++; // TODO check for overflow
 	}
+#ifdef PRETTY_PRINT
 	printf("SPE%d:\tComputations finished\n", my_num);
 	fflush(stdout);
-
-	free_align(buffer[0]);
-	free_align(buffer[1]);
-	free_align(buffer);
+#endif
 
 	printf("SPE%d:\tended\n", my_num);
 
