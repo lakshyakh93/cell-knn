@@ -1,3 +1,5 @@
+#define PPU
+
 #include <stdio.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -81,8 +83,6 @@ int main() {
 	 }
 	 */
 	int k = 5; // TODO atoi(argv[1]);
-
-	KNN<int, int> knn(k);
 
 #ifdef PRETTY_PRINT
 	cout << "k = " << k << endl;

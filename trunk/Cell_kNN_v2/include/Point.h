@@ -1,8 +1,14 @@
 #ifndef POINT_H_
 #define POINT_H_
 
+#ifdef PPU
 #include <malloc_align.h>
 #include <free_align.h>
+#endif
+
+#ifdef SPU
+#include <libmisc.h>
+#endif
 
 // L ... label type
 // T ... value type
@@ -38,8 +44,14 @@ template <class L, class T>
 Point<L,T>::Point (int dim) {
 	deleteValues = 1;
 	setDimension(dim);
+#ifdef PPU
 	label = (L *) _malloc_align(sizeof(L), 4);
 	values = (T *) _malloc_align(dim * sizeof(T), 4);
+#endif
+#ifdef SPU
+	label = (L *) malloc_align(sizeof(L), 4);
+	values = (T *) malloc_align(dim * sizeof(T), 4);
+#endif
 }
 
 /**
@@ -60,8 +72,14 @@ Point<L,T>::Point (int dim, T *v, L *l) {
 template <class L, class T> 
 Point<L,T>::~Point () {
 	if (deleteValues) {
+#ifdef PPU
 		_free_align(label);
 		_free_align(values);
+#endif
+#ifdef SPU
+		free_align(label);
+		free_align(values);
+#endif
 	} else {
 		label = NULL;
 		values = NULL;
