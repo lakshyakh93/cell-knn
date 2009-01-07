@@ -102,8 +102,8 @@ int main() {
 		exit(-1);
 	}
 
-	trainLabels->count = 200;
-	trainImages->count = 200;
+	trainLabels->count = 2000;
+	trainImages->count = 2000;
 	testLabels->count = 10;
 	testImages->count = 10;
 

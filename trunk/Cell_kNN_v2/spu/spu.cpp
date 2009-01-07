@@ -58,8 +58,8 @@ int main() {
 	// STEP 1: read from PPE my number using BLOCKING mailbox read	
 	while (spu_stat_in_mbox()<=0)
 		;
-	my_num = spu_read_in_mbox();
-	num_spes = spu_read_in_mbox();
+	const uint32_t my_num = spu_read_in_mbox();
+	const uint32_t num_spes = spu_read_in_mbox();
 	uint32_t size_data = spu_read_in_mbox(); // Total number of Bytes to read
 	const uint32_t size_buffer = spu_read_in_mbox(); // Size of Buffers
 
