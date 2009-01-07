@@ -51,7 +51,7 @@ double distance(Point query, Point reference) {
 
 = Parallel implementation variants =
 
-In the code above we have denoted the loops with parallelisation potential with _Loop 1_, _Loop 2_ and _Loop 3_. According to this we can implement 3 different variants of parallel implementations.
+In the code above we have denoted the loops with parallelization potential with _Loop 1_, _Loop 2_ and _Loop 3_. According to this we can implement 3 different variants of parallel implementations.
 
 == Variant 1 ==
 Parallelize _Loop 1_, i.e. the loop over the query points.
