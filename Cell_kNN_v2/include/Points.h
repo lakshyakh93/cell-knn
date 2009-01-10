@@ -27,7 +27,6 @@ public:
 
 	L *getLabel(int n);
 	void setLabel(int n, L l);
-	L *getLabels(int n);
 	T *getValues(int n);
 	void setValues(int n, T *point);
 	Point<L, T>* getPoint(int n);
@@ -137,20 +136,6 @@ template<class L, class T> L* Points<L, T>::getLabel(int n) {
 template<class L, class T> void Points<L, T>::setLabel(int n, L l) {
 	if (n < getCount())
 		*(labels + n * getLSize()) = l;
-}
-
-/**
-* @brief Getter function to return a pointer to a datafield of an element in position n
-*
-* @param n Position of the element
-*
-* @return Pointer to the datafield
-*/
-template<class L, class T> L* Points<L, T>::getLabels(int n) {
-	if (n < getCount())
-		return (L*) (labels + n * getLSize());
-	else
-		return NULL;
 }
 
 /**
