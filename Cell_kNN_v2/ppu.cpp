@@ -114,15 +114,16 @@ int main() {
 		exit(-1);
 	}
 
-	trainLabels->count = 10000;
-	trainImages->count = 10000;
-	testLabels->count = 10;
-	testImages->count = 10;
+	trainLabels->count = 10;
+	trainImages->count = 10;
+	testLabels->count = 18;
+	testImages->count = 18;
 
 	unsigned char label;
 	unsigned char *image;
 
-	Points<int, int> points(trainImages->count, trainImages->rows *trainImages->columns);
+	Points<int, int> training_points(trainImages->count, trainImages->rows * trainImages->columns);
+	Points<int, int> query_points(testImages->count, testImages->rows * testImages->columns);
 
 #ifdef PRETTY_PRINT
 	cout << trainImages->count << " " << trainImages->rows*trainImages->columns << endl;
@@ -135,15 +136,33 @@ int main() {
 		image = nextImage(trainImages);
 		label = nextLabel(trainLabels);
 
-		trainPoint = points.getPoint(i++);
+		trainPoint = training_points.getPoint(i++);
 		imageToPoint(trainPoint, label, image, (trainImages->columns *trainImages->rows));
 
 #ifdef PRETTY_PRINT
 		if ((i % 1000) == 0)
-			cout << i << " Images loaded." << endl;
+			cout << i << " training images loaded." << endl;
 #endif
 
 		delete trainPoint;
+		free(image);
+	}
+	
+	i = 0;
+	Point<int, int> *queryPoint;
+	while (hasNextLabel(testLabels) && hasNextImage(testImages)) {
+		image = nextImage(testImages);
+		label = nextLabel(testLabels);
+
+		queryPoint = query_points.getPoint(i++);
+		imageToPoint(queryPoint, label, image, (testImages->columns * testImages->rows));
+
+#ifdef PRETTY_PRINT
+		if ((i % 1000) == 0)
+			cout << i << " query images loaded." << endl;
+#endif
+
+		delete queryPoint;
 		free(image);
 	}
 	//********************************************************
@@ -152,8 +171,10 @@ int main() {
 	int num, num_spes= MAX_NUM_SPES;
 	uint64_t ea, ls;
 
-	// TODO check for number of available SPEs
-	num_spes = MAX_NUM_SPES;
+	num_spes = spe_cpu_info_get(SPE_COUNT_USABLE_SPES, -1);
+	if (num_spes > MAX_NUM_SPES) {
+		num_spes = MAX_NUM_SPES;
+	}
 
 	printf("PPE:\t Start program\n");
 
@@ -197,8 +218,14 @@ int main() {
 
 	//uint32_t dimension = points.getDimension(); 
 	//uint32_t count = points.getCount();
-	uint32_t size_data = points.getCount() * points.getVSize();
-	uint32_t size_buffer = (BUFFER_MAX_SIZE / points.getVSize()) * points.getVSize(); 
+	uint32_t training_dimensions = training_points.getDimension();
+	uint32_t training_count = training_points.getCount();
+	uint32_t training_data_size = training_points.getCount() * training_points.getVSize();
+	uint32_t training_buffer_size = (BUFFER_MAX_SIZE / training_points.getVSize()) * training_points.getVSize();
+	uint32_t query_count = query_points.getCount();
+	uint32_t query_data_size = query_points.getCount() * query_points.getVSize();
+	uint64_t ea_query_points = (uint64_t) query_points.getValues(0);
+	uint64_t ea_query_labels = (uint64_t) query_points.getLabel(0);	
 	
 	// STEP 1: send each SPE its number using BLOCKING mailbox write
 	for (num=0; num<num_spes; num++) {
@@ -209,15 +236,21 @@ int main() {
 		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&num_spes, 1, SPE_MBOX_ALL_BLOCKING);
 		//spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&count, 1, SPE_MBOX_ALL_BLOCKING);
 		//spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&dimension, 1, SPE_MBOX_ALL_BLOCKING);
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&size_data, 1, SPE_MBOX_ALL_BLOCKING);
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&size_buffer, 1, SPE_MBOX_ALL_BLOCKING);
+		spe_in_mbox_write(data[num].spe_ctx, (uint32_t *) &training_dimensions, 1, SPE_MBOX_ALL_BLOCKING);
+		spe_in_mbox_write(data[num].spe_ctx, (uint32_t *) &training_count, 1, SPE_MBOX_ALL_BLOCKING);
+		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&training_data_size, 1, SPE_MBOX_ALL_BLOCKING);
+		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&training_buffer_size, 1, SPE_MBOX_ALL_BLOCKING);
+		spe_in_mbox_write(data[num].spe_ctx, (uint32_t *) &query_count, 1, SPE_MBOX_ALL_BLOCKING);
+		spe_in_mbox_write(data[num].spe_ctx, (uint32_t *) &query_data_size, 1, SPE_MBOX_ALL_BLOCKING);
+		spe_in_mbox_write(data[num].spe_ctx, (uint32_t *) &ea_query_points, 2, SPE_MBOX_ALL_BLOCKING);
+		spe_in_mbox_write(data[num].spe_ctx, (uint32_t *) &ea_query_labels, 2, SPE_MBOX_ALL_BLOCKING);
 	}
-
+	
 	// STEP 2: send SPE0 the EA of the points array
 	//         send each SPE the effective address of other SPE's MFC area
 	//         use NON-BLOCKING mailbox write after first verifying availability of space
-	ea = (uint64_t)points.getValues(0);
-	calculate((char *)points.getValues(0));
+	ea = (uint64_t)training_points.getValues(0);
+	calculate((char *)training_points.getValues(0));
 
 	// write 2 entries to in_mailbox - blocking
 	spe_in_mbox_write(data[0].spe_ctx, (uint32_t*)&ea, 2, SPE_MBOX_ALL_BLOCKING);
