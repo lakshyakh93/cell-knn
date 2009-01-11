@@ -43,9 +43,7 @@ uint32_t calculate(volatile char *buffer) {
 	for (i = 0; i < 768*4; i++)
 		temp+=buffer[i];
 
-	//printf("%d\n", temp);
-
-	return 0;
+	return temp;
 }
 
 int main() {
