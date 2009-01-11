@@ -74,7 +74,7 @@ uint32_t calculate(char *buffer) {
 	for (i = 0; i < 768*4; i++)
 		temp+=buffer[i];
 
-	printf("%PPE sums to %d\n", temp);
+	printf("PPE sums to %d\n", temp);
 
 	return 0;
 }
@@ -85,9 +85,9 @@ uint32_t calculate(char *buffer) {
 //============================================================================
 int main() {
 	//*******************************************************
-#ifdef PRETTY_PRINT
+	#ifdef PRETTY_PRINT
 	cout << "---------[Program start]----------" << endl;
-#endif
+	#endif
 
 	/*	if (argc < 3) {
 	 fprintf(stderr, "Usage: mnist <k> <mnist path> [<nr train images> <nr test images>]\n");
@@ -96,9 +96,9 @@ int main() {
 	 */
 	int k = 5; // TODO atoi(argv[1]);
 
-#ifdef PRETTY_PRINT
+	#ifdef PRETTY_PRINT
 	cout << "k = " << k << endl;
-#endif
+	#endif
 	string base = "/tmp/images/"; // TODO string base(argv[2]);
 
 	LabelIterator *trainLabels = openLabels(base + "train-labels-idx1-ubyte");
@@ -125,10 +125,10 @@ int main() {
 	Points<int, int> training_points(trainImages->count, trainImages->rows * trainImages->columns);
 	Points<int, int> query_points(testImages->count, testImages->rows * testImages->columns);
 
-#ifdef PRETTY_PRINT
+	#ifdef PRETTY_PRINT
 	cout << trainImages->count << " " << trainImages->rows*trainImages->columns << endl;
 	cout << "size: " << trainImages->rows*trainImages->columns << "\tcount: " << trainImages->count << endl;
-#endif
+	#endif
 
 	int i = 0;
 	Point<int, int> *trainPoint;
@@ -139,10 +139,10 @@ int main() {
 		trainPoint = training_points.getPoint(i++);
 		imageToPoint(trainPoint, label, image, (trainImages->columns *trainImages->rows));
 
-#ifdef PRETTY_PRINT
+		#ifdef PRETTY_PRINT
 		if ((i % 1000) == 0)
 			cout << i << " training images loaded." << endl;
-#endif
+		#endif
 
 		delete trainPoint;
 		free(image);
@@ -157,10 +157,10 @@ int main() {
 		queryPoint = query_points.getPoint(i++);
 		imageToPoint(queryPoint, label, image, (testImages->columns * testImages->rows));
 
-#ifdef PRETTY_PRINT
+		#ifdef PRETTY_PRINT
 		if ((i % 1000) == 0)
 			cout << i << " query images loaded." << endl;
-#endif
+		#endif
 
 		delete queryPoint;
 		free(image);
