@@ -82,8 +82,8 @@ template<class L, class T> Points<L, T>::Points(int count, int dim) {
 * Does not allocate any space, but sets references to existing arrays.
 */
 template<class L, class T> Points<L, T>::Points(int count, int dim, char *labels, char* values) {
-	setCount(0);
-	setDimension(0);
+	setCount(count);
+	setDimension(dim);
 	
 	//-----------------------------------------------
 	//----------CELL BE Stuff------------------------
