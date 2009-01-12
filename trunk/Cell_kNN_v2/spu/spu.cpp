@@ -336,8 +336,12 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 	my_num = spu_read_in_mbox();
 
 	// now it's safe to load parameters 
-	mfc_get(&cb, argp, sizeof(cb), tagId[0], 0, 0);
+	mfc_get(&cb, argp, sizeof(CONTROL_BLOCK), tagId[0], 0, 0);
 	waittag(tagId[0]);
+	
+	if (my_num == 0) {
+		print_control_block(&cb);
+	}
 
 	testLabels = (char *) malloc_align(cb.label_size * cb.test_points_per_transfer, 7);
 	trainingLabels[0] = (char *) malloc_align(cb.label_size * cb.training_points_per_transfer, 7);
@@ -348,9 +352,18 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 	fflush(stdout);
 #endif
 
-	uint32_t test_point_transfers = (cb.test_count / cb.test_points_per_transfer) + 1;
-	uint32_t test_point_transfers_per_spu = (test_point_transfers / cb.num_spes) + 1;
-	uint32_t test_points_per_spu = test_point_transfers_per_spu * cb.test_points_per_transfer;
+	uint32_t test_point_transfers = cb.test_count / cb.test_points_per_transfer;
+	if (cb.test_count % cb.test_points_per_transfer != 0) {
+		test_point_transfers++;
+	}
+	
+	uint32_t test_point_transfers_per_spu = test_point_transfers / cb.num_spes;
+	if (test_point_transfers % cb.num_spes != 0) {
+		test_point_transfers_per_spu++;
+	}
+	
+	uint32_t test_points_per_spu = test_point_transfers_per_spu 
+		* cb.test_points_per_transfer;
 
 	// calculate offset in testpoint array
 	ea_test_points = cb.ea_test_points + my_num * test_points_per_spu * cb.values_size;
@@ -361,7 +374,7 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 		test_point_transfers_per_spu = test_point_transfers - (cb.num_spes-1)*test_point_transfers_per_spu;
 		test_points_per_spu = test_point_transfers_per_spu * cb.test_points_per_transfer;
 	}
-
+	
 	for (uint32_t test_point_transfer = 0; test_point_transfer < test_point_transfers_per_spu; test_point_transfer++) {
 #ifdef PRINT
 		printf("SPE%d:\ttest iteration %d started\n", my_num, test_point_transfer);
@@ -389,7 +402,11 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 
 		// TestPoints loaded, create Objects
 		Points<int, int> test_points(cb.test_points_per_transfer, cb.test_dimension, testValues, testLabels);
-
+		
+		Point<int, int> *fu = test_points.getPoint(0);
+		fu->print();		
+		delete fu;
+		
 		// now stream data and calculate all buffered test points
 		streamData(test_points);
 		
