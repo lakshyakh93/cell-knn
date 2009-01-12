@@ -47,5 +47,19 @@ typedef struct {
 	char padding[128 - 16 - 2 * 16 - 32];
 } CONTROL_BLOCK; // => sizeof(CONTROL_BLOCK) == 3 * 128!!!
 
+void print_control_block(CONTROL_BLOCK *cb) {
+	printf("values_size = %d\n", cb->values_size);
+	printf("label_size = %d\n", cb->label_size);
+	
+	printf("training_dimension = %d\n", cb->training_dimension);
+	printf("training_count = %d\n", cb->training_count);
+	printf("training_data_size = %d\n", cb->training_data_size);
+	printf("training_points_per_transfer = %d\n", cb->training_points_per_transfer);
+	
+	printf("test_dimension = %d\n", cb->test_dimension);
+	printf("test_count = %d\n", cb->test_count);
+	printf("test_data_size = %d\n", cb->test_data_size);
+	printf("test_points_per_transfer = %d\n", cb->test_points_per_transfer);
+}
 
 #endif /*CELLKNN_H_*/
