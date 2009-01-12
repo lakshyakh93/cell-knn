@@ -177,8 +177,8 @@ int main() {
 	cb.test_data_size = test_points.getCount() * test_points.getVSize();
 	cb.test_points_per_transfer = TEST_VALUES_MAX_SIZE / test_points.getVSize();
 	
-	cb.ea_training_points = (uint64_t) test_points.getValues(0);
-	cb.ea_training_labels = (uint64_t) test_points.getLabel(0);	
+	cb.ea_training_points = (uint64_t) training_points.getValues(0);
+	cb.ea_training_labels = (uint64_t) training_points.getLabel(0);	
 	cb.ea_test_points = (uint64_t) test_points.getValues(0);
 	cb.ea_test_labels = (uint64_t) test_points.getLabel(0);	
 
@@ -192,6 +192,10 @@ int main() {
 
 	printf("PPE:\t Start program\n");
 
+	Point<int, int> *fu = test_points.getPoint(0);
+	fu->print();
+	delete fu;
+	
 	// create SPE context and load SPE program into the SPE context
 	for (num=0; num<cb.num_spes; num++) {
 		if ((data[num].spe_ctx = spe_context_create(SPE_MAP_PS|SPE_CFG_SIGNOTIFY1_OR|SPE_CFG_SIGNOTIFY2_OR, NULL))==NULL) {
