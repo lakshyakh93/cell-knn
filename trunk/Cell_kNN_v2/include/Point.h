@@ -33,6 +33,7 @@ public:
 	void setLabel(L *label);
 	T *getValues();
 	void setValues(T* vector);
+	void print();
 };
 
 /**
@@ -154,6 +155,21 @@ T *Point<L,T>::getValues() {
 template <class L, class T> 
 void Point<L,T>::setValues (T *v) {
 	values = v;
+}
+
+/**
+* @brief Print point to stdout.
+*
+*/
+template <class L, class T> 
+void Point<L,T>::print() {
+	printf("label = %d\n", label);
+	
+	printf("values = [");
+	for (int i = 0; i < dimension; i++) {
+		printf("%d, ", values[i]);
+	}
+	printf("]\n");
 }
 
 #endif /*POINT_H_*/
