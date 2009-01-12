@@ -57,7 +57,7 @@ uint32_t streamData(Points<int, int> &test_points) {
 
 	// Reset size data.
 	uint32_t size_data = cb.training_data_size;
-	uint32_t size_buffer = cb.training_data_size * cb.training_points_per_transfer;
+	uint32_t size_buffer = cb.values_size * cb.training_points_per_transfer;
 
 	// effective address to training points.
 	uint64_t ea_training_points, ea_training_labels;
