@@ -166,7 +166,7 @@ uint32_t streamData(Points<int, int> &test_points) {
 		}
 
 		// TrainingPoints0 loaded, create Object
-		Points<int, int> training_points0(cb.training_points_per_transfer, cb.training_dimension, trainingValues[0], trainingLabels[0]);
+		Points<int, int> training_points0(cb.training_points_per_transfer, cb.training_dimension, trainingLabels[0], trainingValues[0]);
 		// do calcualtions on buffer
 		calculate(test_points,training_points0);
 
@@ -256,7 +256,7 @@ uint32_t streamData(Points<int, int> &test_points) {
 		}
 
 		// TrainingPoints0 loaded, create Object
-		Points<int, int> training_points1(cb.training_points_per_transfer, cb.training_dimension, trainingValues[1], trainingLabels[1]);
+		Points<int, int> training_points1(cb.training_points_per_transfer, cb.training_dimension, trainingLabels[1], trainingValues[1]);
 		// do calcualtions on buffer
 		calculate(test_points, training_points1);
 
@@ -380,6 +380,10 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 		printf("SPE%d:\ttest iteration %d started\n", my_num, test_point_transfer);
 		fflush(stdout);
 #endif
+		
+#ifdef DEBUG
+		printf("%llu \t %llu \n",ea_test_points,cb.ea_test_points);
+#endif
 		// fill test point and label buffer
 		if (cb.test_points_per_transfer * cb.values_size != fillBuffer(testValues, tagId[0], ea_test_points,
 				cb.test_points_per_transfer * cb.values_size)) {
@@ -400,8 +404,11 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 
 		waittag(tagId[0]);
 
+#ifdef DEBUG
+		printf("%d \t %d \n",((int *)testValues)[0], ((int *)testLabels)[0]);
+#endif
 		// TestPoints loaded, create Objects
-		Points<int, int> test_points(cb.test_points_per_transfer, cb.test_dimension, testValues, testLabels);
+		Points<int, int> test_points(cb.test_points_per_transfer, cb.test_dimension, testLabels, testValues);
 		
 		Point<int, int> *fu = test_points.getPoint(0);
 		fu->print();		
