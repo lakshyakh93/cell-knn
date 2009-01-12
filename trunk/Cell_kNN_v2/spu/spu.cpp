@@ -131,7 +131,7 @@ uint32_t streamData(Points<int, int> &test_points) {
 		waittag(tagId[0]);
 
 #ifdef PRINT
-		printf("SPE%d:\tTransfer %d on Buffer 0 complete\n", my_num, iteration-1);
+		printf("SPE%d:\tTransfer %d on Buffer 0 complete\n", my_num, iteration);
 		fflush(stdout);
 #endif
 		
@@ -175,7 +175,7 @@ uint32_t streamData(Points<int, int> &test_points) {
 			waittag(tagId[1]);
 
 #ifdef PRINT
-		printf("SPE%d:\tTransfer %d on Buffer 1 complete\n", my_num, iteration-1);
+		printf("SPE%d:\tTransfer %d on Buffer 1 complete\n", my_num, iteration);
 		fflush(stdout);
 #endif
 
@@ -250,7 +250,7 @@ uint32_t streamData(Points<int, int> &test_points) {
 
 			
 #ifdef PRINT
-			printf("SPE%d:\tTransfer %d on Buffer 0 initiated\n", my_num, iteration);
+			printf("SPE%d:\tTransfer %d on Buffer 0 initiated\n", my_num, iteration+1);
 			fflush(stdout);
 #endif
 		}
@@ -301,7 +301,7 @@ uint32_t streamData(Points<int, int> &test_points) {
 
 			
 #ifdef PRINT
-			printf("SPE%d:\tTransfer %d on Buffer 1 initiated\n", my_num, iteration);
+			printf("SPE%d:\tTransfer %d on Buffer 1 initiated\n", my_num, iteration+1);
 			fflush(stdout);
 #endif
 		}
