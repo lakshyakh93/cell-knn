@@ -15,9 +15,8 @@
 #include "cellknn.h"
 #include "KNN.h"
 #include "libMnist.cpp" // TODO why .cpp?
-#define MAX_NUM_SPES 6
-#define DEBUG
-#define PRETTY_PRINT
+
+CONTROL_BLOCK cb __attribute__((aligned(16)));
 
 extern spe_program_handle_t spu;
 
@@ -61,7 +60,8 @@ void *spu_pthread(void *arg) {
 	spu_data_t *datap = (spu_data_t *)arg;
 	uint32_t entry = SPE_DEFAULT_ENTRY;
 
-	if (spe_context_run(datap->spe_ctx, &entry, 0, NULL, NULL, NULL)<0) {
+	// TODO check &cb
+	if (spe_context_run(datap->spe_ctx, &entry, 0, &cb, NULL, NULL)<0) {
 		perror("Failed running context");
 		exit(1);
 	}
@@ -85,7 +85,7 @@ uint32_t calculate(char *buffer) {
 //============================================================================
 int main() {
 	//*******************************************************
-	#ifdef PRETTY_PRINT
+	#ifdef PRINT
 	cout << "---------[Program start]----------" << endl;
 	#endif
 
@@ -94,10 +94,10 @@ int main() {
 	 return EXIT_FAILURE;
 	 }
 	 */
-	int k = 5; // TODO atoi(argv[1]);
+	cb.k = 5; // TODO atoi(argv[1]);
 
-	#ifdef PRETTY_PRINT
-	cout << "k = " << k << endl;
+	#ifdef PRINT
+	cout << "k = " << cb.k << endl;
 	#endif
 	string base = "/tmp/images/"; // TODO string base(argv[2]);
 
@@ -114,8 +114,8 @@ int main() {
 		exit(-1);
 	}
 
-	trainLabels->count = 10;
-	trainImages->count = 10;
+	trainLabels->count = 50;
+	trainImages->count = 50;
 	testLabels->count = 18;
 	testImages->count = 18;
 
@@ -123,9 +123,9 @@ int main() {
 	unsigned char *image;
 
 	Points<int, int> training_points(trainImages->count, trainImages->rows * trainImages->columns);
-	Points<int, int> query_points(testImages->count, testImages->rows * testImages->columns);
+	Points<int, int> test_points(testImages->count, testImages->rows * testImages->columns);
 
-	#ifdef PRETTY_PRINT
+	#ifdef PRINT
 	cout << trainImages->count << " " << trainImages->rows*trainImages->columns << endl;
 	cout << "size: " << trainImages->rows*trainImages->columns << "\tcount: " << trainImages->count << endl;
 	#endif
@@ -139,7 +139,7 @@ int main() {
 		trainPoint = training_points.getPoint(i++);
 		imageToPoint(trainPoint, label, image, (trainImages->columns *trainImages->rows));
 
-		#ifdef PRETTY_PRINT
+		#ifdef PRINT
 		if ((i % 1000) == 0)
 			cout << i << " training images loaded." << endl;
 		#endif
@@ -149,38 +149,56 @@ int main() {
 	}
 	
 	i = 0;
-	Point<int, int> *queryPoint;
+	Point<int, int> *testPoint;
 	while (hasNextLabel(testLabels) && hasNextImage(testImages)) {
 		image = nextImage(testImages);
 		label = nextLabel(testLabels);
 
-		queryPoint = query_points.getPoint(i++);
-		imageToPoint(queryPoint, label, image, (testImages->columns * testImages->rows));
+		testPoint = test_points.getPoint(i++);
+		imageToPoint(testPoint, label, image, (testImages->columns * testImages->rows));
 
-		#ifdef PRETTY_PRINT
+		#ifdef PRINT
 		if ((i % 1000) == 0)
-			cout << i << " query images loaded." << endl;
+			cout << i << " test images loaded." << endl;
 		#endif
 
-		delete queryPoint;
+		delete testPoint;
 		free(image);
 	}
 	//********************************************************
 
+	
+	cb.values_size = training_points.getVSize();
+	cb.label_size = training_points.getLSize();
+	
+	cb.training_dimension = training_points.getDimension();
+	cb.training_count = training_points.getCount();
+	cb.training_data_size = training_points.getCount() * training_points.getVSize();
+	cb.training_points_per_transfer = TRAINING_VALUES_MAX_SIZE / training_points.getVSize();
+	
+	cb.test_dimension = test_points.getDimension();
+	cb.test_count = test_points.getCount();
+	cb.test_data_size = test_points.getCount() * test_points.getVSize();
+	cb.test_points_per_transfer = TEST_VALUES_MAX_SIZE / test_points.getVSize();
+	
+	cb.ea_training_points = (uint64_t) test_points.getValues(0);
+	cb.ea_training_labels = (uint64_t) test_points.getLabel(0);	
+	cb.ea_test_points = (uint64_t) test_points.getValues(0);
+	cb.ea_test_labels = (uint64_t) test_points.getLabel(0);	
 
-	int num, num_spes= MAX_NUM_SPES;
-	uint64_t ea, ls;
 
-	num_spes = spe_cpu_info_get(SPE_COUNT_USABLE_SPES, -1);
-	if (num_spes > MAX_NUM_SPES) {
-		num_spes = MAX_NUM_SPES;
+	cb.num_spes = spe_cpu_info_get(SPE_COUNT_USABLE_SPES, -1);
+	if (cb.num_spes > MAX_NUM_SPES) {
+		cb.num_spes = MAX_NUM_SPES;
 	}
+
+	uint32_t num;
 
 	printf("PPE:\t Start program\n");
 
 	// create SPE context and load SPE program into the SPE context
-	for (num=0; num<num_spes; num++) {
-		if ((data[num].spe_ctx = spe_context_create(SPE_MAP_PS|SPE_CFG_SIGNOTIFY1_OR, NULL))==NULL) {
+	for (num=0; num<cb.num_spes; num++) {
+		if ((data[num].spe_ctx = spe_context_create(SPE_MAP_PS|SPE_CFG_SIGNOTIFY1_OR|SPE_CFG_SIGNOTIFY2_OR, NULL))==NULL) {
 			perror("Failed creating context");
 			exit(1);
 		}
@@ -191,84 +209,43 @@ int main() {
 	}
 
 	// create SPE pthreads
-	for (num=0; num<num_spes; num++) {
+	for (num=0; num<cb.num_spes; num++) {
 		if (pthread_create(&data[num].pthread, NULL, &spu_pthread, &data[num])) {
 			perror("Failed creating thread");
 			exit(1);
 		}
 	}
 
-	// STEP 0: map SPE's MFC problem state to main storage (get effective address)
-	for (num=0; num<num_spes; num++) {
-		if ((data[num].mfc_ctl = (spe_spu_control_area_t*)spe_ps_area_get(data[num].spe_ctx, SPE_CONTROL_AREA))==NULL) {
+	// map SPE's MFC problem state to main storage (get effective address)
+	for (num=0; num<cb.num_spes; num++) {
+		if ((cb.spu_mfc_ctl[num] = (uint64_t)spe_ps_area_get(data[num].spe_ctx, SPE_CONTROL_AREA))==NULL) {
 			perror("Failed mapping MFC control area");
 			exit(1);
 		}
-		if ((data[num].spu_ls = spe_ls_area_get(data[num].spe_ctx))==NULL) {
+		if ((cb.spu_ls[num] = (uint64_t)spe_ls_area_get(data[num].spe_ctx))==NULL) {
 			perror("Failed mapping SPU local store");
 			exit(1);
 		}
-		if ((data[num].ea_sig1 = (spe_sig_notify_1_area_t*)spe_ps_area_get( data[num].spe_ctx, SPE_SIG_NOTIFY_1_AREA))==NULL){
+		if ((cb.spu_sig1[num] = (uint64_t)spe_ps_area_get( data[num].spe_ctx, SPE_SIG_NOTIFY_1_AREA))==NULL){
 			perror ("Failed mapping Signal1 area");	exit (1);
 		}
-		if ((data[num].ea_sig2 = (spe_sig_notify_2_area_t*)spe_ps_area_get( data[num].spe_ctx, SPE_SIG_NOTIFY_2_AREA))==NULL){
+		if ((cb.spu_sig2[num] = (uint64_t)spe_ps_area_get( data[num].spe_ctx, SPE_SIG_NOTIFY_2_AREA))==NULL){
 			perror ("Failed mapping Signal2 area");	exit (1);
 		}
 	}
 
-	//uint32_t dimension = points.getDimension(); 
-	//uint32_t count = points.getCount();
-	uint32_t training_dimensions = training_points.getDimension();
-	uint32_t training_count = training_points.getCount();
-	uint32_t training_data_size = training_points.getCount() * training_points.getVSize();
-	uint32_t training_buffer_size = (BUFFER_MAX_SIZE / training_points.getVSize()) * training_points.getVSize();
-	uint32_t query_count = query_points.getCount();
-	uint32_t query_data_size = query_points.getCount() * query_points.getVSize();
-	uint64_t ea_query_points = (uint64_t) query_points.getValues(0);
-	uint64_t ea_query_labels = (uint64_t) query_points.getLabel(0);	
 	
-	// STEP 1: send each SPE its number using BLOCKING mailbox write
-	for (num=0; num<num_spes; num++) {
+	// send each SPE its number using BLOCKING mailbox write
+	for (num=0; num<cb.num_spes; num++) {
 		printf("PPE -> SPE%d:\t <%u>\n", num, num);
 
 		// write 1 entry to in_mailbox - we don't know if we have availalbe space so use blocking
+		// cb parameter have to be loaded after receiving local id!!!
 		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&num, 1, SPE_MBOX_ALL_BLOCKING);
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&num_spes, 1, SPE_MBOX_ALL_BLOCKING);
-		//spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&count, 1, SPE_MBOX_ALL_BLOCKING);
-		//spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&dimension, 1, SPE_MBOX_ALL_BLOCKING);
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t *) &training_dimensions, 1, SPE_MBOX_ALL_BLOCKING);
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t *) &training_count, 1, SPE_MBOX_ALL_BLOCKING);
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&training_data_size, 1, SPE_MBOX_ALL_BLOCKING);
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&training_buffer_size, 1, SPE_MBOX_ALL_BLOCKING);
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t *) &query_count, 1, SPE_MBOX_ALL_BLOCKING);
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t *) &query_data_size, 1, SPE_MBOX_ALL_BLOCKING);
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t *) &ea_query_points, 2, SPE_MBOX_ALL_BLOCKING);
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t *) &ea_query_labels, 2, SPE_MBOX_ALL_BLOCKING);
-	}
-	
-	// STEP 2: send SPE0 the EA of the points array
-	//         send each SPE the effective address of other SPE's MFC area
-	//         use NON-BLOCKING mailbox write after first verifying availability of space
-	ea = (uint64_t)training_points.getValues(0);
-	calculate((char *)training_points.getValues(0));
-
-	// write 2 entries to in_mailbox - blocking
-	spe_in_mbox_write(data[0].spe_ctx, (uint32_t*)&ea, 2, SPE_MBOX_ALL_BLOCKING);
-	uint64_t ea_next, sig2_prev;
-	for (num=0; num<num_spes; num++) {
-		
-		ea_next	= (uint64_t)data[(num==num_spes-1)?0:num+1].mfc_ctl;
-		sig2_prev	= (uint64_t)data[(num==0)?num_spes-1:num-1].ea_sig2;
-		ls		= (uint64_t)data[(num==0)?num_spes-1:num-1].spu_ls;
-
-		// write 4 entries to in_mailbox - blocking
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&ea_next, 2, SPE_MBOX_ALL_BLOCKING);
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&sig2_prev, 2, SPE_MBOX_ALL_BLOCKING);
-		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&ls, 2, SPE_MBOX_ALL_BLOCKING);
 	}
 
 	// wait for all SPEs to complete
-	for (num=0; num<num_spes; num++) {
+	for (num=0; num<cb.num_spes; num++) {
 		// wait for all the SPE pthread to complete
 		if (pthread_join(data[num].pthread, NULL)) {
 			perror("Failed joining thread");
