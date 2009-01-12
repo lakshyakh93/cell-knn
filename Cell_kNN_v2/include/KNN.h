@@ -48,6 +48,38 @@ void KNN<L, T>::classify(Point<L, T> &testPoint, Points<L, T> &trainPoints, int 
 }
 
 /** 
+* @brief Function used to classify the testPoint against the trainPoints.
+* 
+* @param testPoint Point to be classified
+* @param trainPoints Training points used as reference
+* 
+* @return Label of testPoint.
+* 
+*/
+template <class L, class T>
+static L classify(Point<L, T> &testPoint, Points<L, T> &trainPoints, SortedList<double, L> &sortedlist) {
+	Point<L,T> *trainPoint;
+	
+	for (int i = 0; i < trainPoints.getCount(); ++i) {
+		trainPoint = trainPoints.getPoint(i);
+		double d = KNN<L, T>::distance(testPoint, *trainPoint);
+		sortedlist.insert(d, trainPoint->getLabel());
+		delete trainPoint;
+	}
+	
+	return KNN<L, T>::majorityVote(sortedlist);
+}
+
+/** 
+* @brief Fuction used to classify the testPoint against the trainPoints \n
+* 	testPoints label is set with the calculated label.
+* 
+* @param testPoint Point to be classified
+* @param trainPoints Training points used as reference
+* 
+*/
+
+/** 
 * @brief Function used to compute the most occurrencies of same distance values (sum of sqare the difference)
 * 
 * @param sortedlist SortedList filled with distance values and labels
