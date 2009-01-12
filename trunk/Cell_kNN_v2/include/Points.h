@@ -83,7 +83,7 @@ template<class L, class T> Points<L, T>::Points(int count, int dim) {
 * @brief Constructor for the Points class.
 * Does not allocate any space, but sets references to existing arrays.
 */
-template<class L, class T> Points<L, T>::Points(int count, int dim, char *labels, char* values) {
+template<class L, class T> Points<L, T>::Points(int count, int dim, char *labels, char *values) {
 	deleteValues = 0;
 	setCount(count);
 	setDimension(dim);
