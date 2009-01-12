@@ -29,10 +29,6 @@ spe_program_handle_t *program[MAX_NUM_SPES];
 typedef struct spu_data {
 	spe_context_ptr_t spe_ctx;
 	pthread_t pthread;
-	volatile spe_spu_control_area_t* mfc_ctl;
-	volatile spe_sig_notify_1_area_t *ea_sig1; // EA pointer to SPE's singnal1 MMIO registers
-	volatile spe_sig_notify_2_area_t *ea_sig2; // EA pointer to SPE's singnal2 MMIO registers
-	volatile void* spu_ls;
 } spu_data_t;
 
 spu_data_t data[MAX_NUM_SPES];
@@ -114,10 +110,10 @@ int main() {
 		exit(-1);
 	}
 
-	trainLabels->count = 50;
-	trainImages->count = 50;
-	testLabels->count = 18;
-	testImages->count = 18;
+	trainLabels->count = 1000;
+	trainImages->count = 1000;
+	testLabels->count = 1000;
+	testImages->count = 1000;
 
 	unsigned char label;
 	unsigned char *image;
