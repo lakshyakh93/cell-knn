@@ -11,6 +11,7 @@
 * @brief Class representing a collection of images (Point)
 */
 template <class L, class T> class Points {
+	int deleteValues;
 	int count; //60000
 	int dimension; //28*28
     int lsize; //sizeof(L) + padding
@@ -48,6 +49,7 @@ public:
 *
 */
 template<class L, class T> Points<L, T>::Points(int count, int dim) {
+	deleteValues = 1;
 	setCount(count);
 	setDimension(dim);
 	
@@ -82,6 +84,7 @@ template<class L, class T> Points<L, T>::Points(int count, int dim) {
 * Does not allocate any space, but sets references to existing arrays.
 */
 template<class L, class T> Points<L, T>::Points(int count, int dim, char *labels, char* values) {
+	deleteValues = 0;
 	setCount(count);
 	setDimension(dim);
 	
@@ -102,6 +105,7 @@ template<class L, class T> Points<L, T>::Points(int count, int dim, char *labels
 }
 
 template<class L, class T> Points<L, T>::~Points() {
+	if (deleteValues) {
 #ifdef PPU
 		_free_align(labels);
 		_free_align(values);
@@ -110,6 +114,7 @@ template<class L, class T> Points<L, T>::~Points() {
 		free_align(labels);
 		free_align(values);
 #endif
+	}
 }
 
 /**
