@@ -16,11 +16,13 @@ using namespace std;
 */
 template <class L, class T>
 class KNN {
-	L majorityVote(SortedList<double, L> &sortedlist);
-	double distance(Point<L, T> &testPoint,	Point<L, T> &trainPoint);
+private:
+	static L majorityVote(SortedList<double, L> &sortedlist);
+	static double distance(Point<L, T> &testPoint,	Point<L, T> &trainPoint);
 public:
 	// Updated label of testPoint therefore no return value.
 	void classify(Point<L, T> &testPoint, Points<L, T> &trainPoints, int k);
+	static L classify(Point<L, T> &testPoint, Points<L, T> &trainPoints, SortedList<double, L> &list);
 };
 
 /** 
@@ -37,12 +39,12 @@ void KNN<L, T>::classify(Point<L, T> &testPoint, Points<L, T> &trainPoints, int 
 	Point<L,T> *trainPoint;
 	for (int i = 0; i < trainPoints.getCount(); ++i) {
 		trainPoint = trainPoints.getPoint(i);
-		double d = distance(testPoint, *trainPoint);
+		double d = KNN<L, T>::distance(testPoint, *trainPoint);
 		sortedlist.insert(d, trainPoint->getLabel());
 		delete trainPoint;
 	}
 	
-	testPoint.setLabel(majorityVote(sortedlist));
+	testPoint.setLabel(KNN<L, T>::majorityVote(sortedlist));
 }
 
 /** 
@@ -53,7 +55,7 @@ void KNN<L, T>::classify(Point<L, T> &testPoint, Points<L, T> &trainPoints, int 
 * @return class L The classification of the image
 */
 template <class L, class T>
-L KNN<L, T>::majorityVote(SortedList<double, L> &sortedlist) {
+static L majorityVote(SortedList<double, L> &sortedlist) {
 	map<L, int> majorityVote;
 
 	for (typename SortedList<double, L>::Iterator it = sortedlist.begin(); it != sortedlist.end(); ++it) {
@@ -82,7 +84,7 @@ L KNN<L, T>::majorityVote(SortedList<double, L> &sortedlist) {
 * @return Sum of the distances squared
 */
 template <class L, class T>
-double KNN<L, T>::distance(Point<L, T> &testPoint,	Point<L, T> &trainPoint) {
+static double distance(Point<L, T> &testPoint,	Point<L, T> &trainPoint) {
 	double sum = 0.0, temp;
 
 	for (int i = 0; i < testPoint.getDimension(); ++i) {
