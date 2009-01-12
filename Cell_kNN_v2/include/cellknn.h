@@ -5,7 +5,7 @@
 #define TRAINING_VALUES_MAX_SIZE (64 * 1024)   // Size of Buffer (in Bytes)
 #define TEST_VALUES_MAX_SIZE (8 * 1024)   // Size of Buffer (in Bytes)
 #define DMA_MAX_SIZE 16384 // Maximum Size (in Bytes)
-#define MAX_NUM_SPES 1
+#define MAX_NUM_SPES 8
 
 #define DEBUG
 #define PRINT
