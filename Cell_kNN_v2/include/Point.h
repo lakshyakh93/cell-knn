@@ -163,7 +163,7 @@ void Point<L,T>::setValues (T *v) {
 */
 template <class L, class T> 
 void Point<L,T>::print() {
-	printf("label = %d\n", label);
+	printf("label = %d\n", getLabel());
 	
 	printf("values = [");
 	for (int i = 0; i < dimension; i++) {
