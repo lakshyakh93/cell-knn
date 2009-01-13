@@ -115,8 +115,8 @@ int main() {
 
 	trainLabels->count = 60000;
 	trainImages->count = 60000;
-	testLabels->count = 100;
-	testImages->count = 100;
+	testLabels->count = 53;
+	testImages->count = 53;
 
 	unsigned char label;
 	unsigned char *image;

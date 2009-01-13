@@ -43,25 +43,48 @@ uint32_t fillBuffer(char *buffer, uint32_t tagId, uint64_t address, uint32_t tra
 }
 
 double distance(Point<int, int> &testPoint,	Point<int, int> &trainPoint) {
-	double result = 0.0;
+	float result = 0.0;
 	
 	#ifndef SIMD
-	double sum, temp;
+	float sum = 0.0, temp;
 	for (int i = 0; i < testPoint.getDimension(); ++i) {
-		temp = static_cast<double>(testPoint.getValues()[i] - trainPoint.getValues()[i]);
+		temp = static_cast<float>(testPoint.getValues()[i] - trainPoint.getValues()[i]);
 		sum += temp * temp;
 	}
 	result = sum;
 	#endif
 	
 	#ifdef SIMD
-	float sum;
+	float sum = 0.0;
+	/*
+	int size = testPoint.getDimension() / 4;
+	int *temp1 = (int *) malloc_align(cb.values_size, 7);
+	float *temp2 = (float *) malloc_align(cb.values_size, 7);
+	
+	vector signed int *trainVec = (vector signed int *)  trainPoint.getValues();
+	vector signed int *testVec = (vector signed int *)  testPoint.getValues();
+	
+	vector signed int *distVec = (vector signed int *) temp1;
+	vector float *distVecF = (vector float *) temp2;
+	
+	for (int i = 0; i < size; i++) {
+		distVec[i] = spu_sub(trainVec[i], testVec[i]);
+		distVecF[i] = spu_convtf(distVec[i], 0);
+		distVecF[i] = spu_mul(distVecF[i], distVecF[i]);
+		
+		sum += spu_extract(distVecF[i], i);
+	}
+	
+	free_align(temp1);
+	free_align(temp2);
+	*/
+	
 	for (int i = 0; i < testPoint.getDimension() / 4; i += 4) {
-		vector signed int distVec;
+		vector unsigned int distVec;
 		vector float distVecF;
 		
-		vector signed int trainVec = (vector signed int) {trainPoint.getValues()[i], trainPoint.getValues()[i + 1], trainPoint.getValues()[i + 2], trainPoint.getValues()[i + 3]};
-		vector signed int testVec = (vector signed int) {testPoint.getValues()[i], testPoint.getValues()[i + 1], testPoint.getValues()[i + 2], testPoint.getValues()[i + 3]};
+		vector unsigned int trainVec = (vector unsigned int) {trainPoint.getValues()[i], trainPoint.getValues()[i + 1], trainPoint.getValues()[i + 2], trainPoint.getValues()[i + 3]};
+		vector unsigned int testVec = (vector unsigned int) {testPoint.getValues()[i], testPoint.getValues()[i + 1], testPoint.getValues()[i + 2], testPoint.getValues()[i + 3]};
 		
 		distVec = spu_sub(trainVec, testVec);
 		distVecF = spu_convtf(distVec, 0);
@@ -71,14 +94,15 @@ double distance(Point<int, int> &testPoint,	Point<int, int> &trainPoint) {
 			sum += spu_extract(distVecF, k);
 		}
 	}
-	result = (double) sum;
+	
+	result = sum;
 	#endif
 
 	return result;
 }
 
 uint32_t calculate(Points<int, int> &test_points, Points<int, int> &training_points,
-		double *distances, int *labels) {
+		float *distances, int *labels) {
 	//iterate over test_points
 	//calculate temporary knn over training points (~30 points)
 	//store a sorted list for each testpoint sortedlists (=> created in streamdata or globally)
@@ -93,7 +117,7 @@ uint32_t calculate(Points<int, int> &test_points, Points<int, int> &training_poi
 		
 		for (int i = 0; i < training_points.getCount(); ++i) {
 			trainPoint = training_points.getPoint(i);
-			double d = distance(*testPoint, *trainPoint);
+			float d = distance(*testPoint, *trainPoint);
 			//printf("SPE%d: distance = %lf\n", my_num, d);
 			//sortedlist.insert(d, trainPoint->getLabel());
 			
@@ -114,7 +138,7 @@ uint32_t calculate(Points<int, int> &test_points, Points<int, int> &training_poi
 }
 
 uint32_t streamData(Points<int, int> &test_points) {
-	double *distances = (double *) malloc_align(test_points.getCount() * sizeof(double), 7);
+	float *distances = (float *) malloc_align(test_points.getCount() * sizeof(float), 7);
 	int *labels = (int *) malloc_align(test_points.getCount() * sizeof(int), 7);
 	
 	for (int i = 0; i < test_points.getCount(); i++) {
@@ -452,35 +476,29 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 	uint32_t start = my_num * range;
 	uint32_t end = start+range-1;
 	
-	uint32_t rest = cb.test_count%cb.num_spes;
-	if(rest!=0)
+	uint32_t rest = cb.test_count % cb.num_spes;
+	if (rest != 0)
 	{
-		if (my_num > 0) {
-			if(my_num<rest)
-			{
-				start+=my_num;
-				end+=my_num;
-				
-				if (my_num < cb.test_count%cb.num_spes) {
-					range++;
-					end++;
-				}
-			}
-			else
-			{
-				start+=rest;
-				end+=rest;
-			}
-		} else {
+		if (my_num < rest)
+		{
+			start += my_num;
+			end += my_num + 1;
 			range++;
-			end++;
+		}
+		else
+		{
+			start += rest;
+			end += rest;
 		}
 	}
 	
-	bool skip = false;
-	
 	for (uint32_t test_point_transfer = 0, index = start; test_point_transfer < test_point_transfers_per_spu; 
 			test_point_transfer++, index += cb.test_points_per_transfer) {
+		/*
+		printf("SPE%d: %d - %d\n", my_num, index, end);
+		fflush(stdout);
+		*/
+		
 #ifdef PRINT
 		printf("SPE%d:\ttest iteration %d started\n", my_num, test_point_transfer);
 		fflush(stdout);
@@ -492,7 +510,7 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 		
 		// Check if we would exceed end index.
 		if (index + cb.test_points_per_transfer >= end) {
-			cb.test_points_per_transfer = end - index;
+			cb.test_points_per_transfer = (end - index) + 1;
 		}
 		
 		Points<int, int> *test_points = 0;
@@ -523,17 +541,12 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 	#endif
 			// TestPoints loaded, create Objects
 			test_points = new Points<int, int>(cb.test_points_per_transfer, cb.test_dimension, testLabels, testValues);
-			
-			//Point<int, int> *fu = test_points->getPoint(0);
-			//fu->print();		
-			//delete fu;
-		
-		// now stream data and calculate all buffered test points
 		}
 		else
 		{
 			test_points = new Points<int, int>(0, 0, testLabels, testValues);
 			printf("%d SKIP\n", my_num);
+			fflush(stdout);
 		}
 		
 		streamData(*test_points);
@@ -558,18 +571,3 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 
 	return 0;
 }
-
-
-/*
- * 	while ((test_index = my_num + test_counter * num_spes) < max_test_count) {
-
-		uint32_t skip = (test_index >= test_count);
-
-		if (!skip) {
-
-		}
-
-		
-
-
-	}*/
