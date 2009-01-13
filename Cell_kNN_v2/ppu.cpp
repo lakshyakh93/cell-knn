@@ -9,6 +9,7 @@
 #include <libspe2.h>
 #include <cbe_mfc.h>
 #include <pthread.h>
+#include <time.h>
 
 #include <unistd.h>
 
@@ -80,6 +81,8 @@ uint32_t calculate(char *buffer) {
 // main
 //============================================================================
 int main() {
+	time_t start_time, end_time;
+	
 	//*******************************************************
 	#ifdef PRINT
 	cout << "---------[Program start]----------" << endl;
@@ -110,10 +113,10 @@ int main() {
 		exit(-1);
 	}
 
-	trainLabels->count = 1000;
-	trainImages->count = 1000;
-	testLabels->count = 1000;
-	testImages->count = 1000;
+	trainLabels->count = 60000;
+	trainImages->count = 60000;
+	testLabels->count = 100;
+	testImages->count = 100;
 
 	unsigned char label;
 	unsigned char *image;
@@ -163,6 +166,7 @@ int main() {
 	}
 	//********************************************************
 
+	time(&start_time);
 	
 	cb.values_size = training_points.getVSize();
 	cb.label_size = training_points.getLSize();
@@ -187,6 +191,8 @@ int main() {
 	if (cb.num_spes > MAX_NUM_SPES) {
 		cb.num_spes = MAX_NUM_SPES;
 	}
+	
+	printf("PPE:\t Num spes = %d\n", cb.num_spes);
 
 	uint32_t num;
 
@@ -258,6 +264,12 @@ int main() {
 			exit(1);
 		}
 	}
+	
+	time(&end_time);
+	
+	double difference = difftime(end_time, start_time);
+	printf("It took %.2lf seconds to calculate %d test points and %d training points\n",
+			difference, cb.test_count, cb.training_count);
 
 	printf("PPE:\t Program finished\n");
 
