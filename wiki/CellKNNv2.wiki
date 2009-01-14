@@ -21,6 +21,7 @@ Compared to version 1.0 and the sequential implementation we now have a drastic 
 
 || *Version* || *Overall Time* || *Time Per Test Point* ||
 || Cell k-NN Sequential || 12 000s || 1.2s ||
+|| Cell k-NN 1.0 || 5 200 000s || 520s ||
 || Cell k-NN 2.0 || 634s || 0.0634s ||
 
 As you can see, we have a speedup of 18.93 comparing the parallel to the sequential implementation.
