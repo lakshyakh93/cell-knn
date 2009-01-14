@@ -17,16 +17,10 @@ Considering the results obtained from analyzing Cell k-NN 1.0, we want to realiz
 In the code repository you can find the final version of our parallel k-NN implementation:
  * [http://code.google.com/p/cell-knn/source/browse/#svn/trunk/Cell_kNN_v1 Cell_kNN_v1]: a _parallel_ implementation using the pipelining approach as described above.
 
-Compared to version 1.0 and the sequential implementation we now have a drastic performance increase.
+Compared to version 1.0 and the sequential implementation we now have a drastic performance increase. See the table below for the time needed classifying 10000 test points using 60000 training points with both the sequential and the parallel (version 2.0) k-NN implementation.
 
-Executing the MNIST tests has shown, that the parallel version peforms drastically worse than the sequential implementation (*speedup of 0.002!*). We have identified the following possible reasons:
- * A single SPE transfers only about 0.5 kByte compared the possible 16 kByte per comparison of a single reference point to the query point. This comes from the fact that each SPE calculates the distance between a _part_ of the query and a _part_ of the reference point. The number of elements each SPE considers is given by number_of_dimensions / number_of_SPEs, which is in our case (28 x 28) / 6 = 130 = 522 Byte.
- * 60000 x number_of_SPEs threads are created, destroyed and joined when classifying a single query point (1 MNIST image). When classyfing all 10000 MNIST images in the test set, an overall of 60000 x number_of_SPEs x 10000 threads are spawned.
- * At each comparison, the query point data is loaded from the main memory into the local store of the SPE, although it would be sufficient to load the query point data once and compare it to all reference points.
- * Since all threads are started more or less at the same time, there is a simultaneous access to the main memory from all SPEs, which leads to a bottleneck at the EIB through simultaneous DMA requests on the same data.
+|| *Version* || *Overall Time* || *Time Per Test Point* ||
+|| Cell k-NN Sequential || 12 000s || 1.2s ||
+|| Cell k-NN 2.0 || 634s || 0.0634s ||
 
-Documentation is available at:
-
-http://www.dps.uibk.ac.at/~csae6550/documents/seq/ for the sequential (Cplusplus_kNN/) version
-
-http://www.dps.uibk.ac.at/~csae6550/documents/par/ for the parallel (Cell_kNN_v1/) version
+As you can see, we have a speedup of 18.93 comparing the parallel to the sequential implementation.
