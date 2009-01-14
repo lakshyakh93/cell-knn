@@ -54,10 +54,10 @@ double distance(Point query, Point reference) {
 In the code above we have denoted the loops with parallelization potential with _Loop 1_, _Loop 2_ and _Loop 3_. According to this we can implement 3 different variants of parallel implementations.
 
 == Variant 1 ==
-Parallelize _Loop 1_, i.e. the loop over the query points. [CellkNNv2 Cell k-NN 2.0] follows this approach.
+Parallelize _Loop 1_, i.e. the loop over the query points. [CellKNNv2 Cell k-NN 2.0] follows this approach.
 
 == Variant 2 ==
 Parallelize _Loop 2_, i.e. the loop over the training points.
 
 == Variant 3 ==
-Parallelize _Loop 3_, i.e. the loop over the dimensions of the vector space to calculate the distance of a query point to a training point. [CellkNNv1 Cell k-NN 1.0] follows this approach.
+Parallelize _Loop 3_, i.e. the loop over the dimensions of the vector space to calculate the distance of a query point to a training point. [CellKNNv1 Cell k-NN 1.0] follows this approach.
