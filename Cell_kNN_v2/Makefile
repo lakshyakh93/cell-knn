@@ -59,7 +59,7 @@ PROGRAM_ppu64	:= ppu
 
 IMPORTS         = spu/lib_spu.a -lspe2 -lpthread
 INCLUDE = -I ./include/
-CC_OPT_LEVEL = -g3
+#CC_OPT_LEVEL = -g3
 
 #INSTALL_FILES		= $(PROGRAM_ppu)
 

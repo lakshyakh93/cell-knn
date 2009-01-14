@@ -9,7 +9,7 @@
 
 //#define DEBUG
 //#define PRINT
-//#define SIMD
+#define SIMD
 
 #define waittag(tag_id) mfc_write_tag_mask(1<<tag_id);	mfc_read_tag_status_all();
 

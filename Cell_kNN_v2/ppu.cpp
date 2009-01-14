@@ -84,9 +84,7 @@ int main() {
 	time_t start_time, end_time;
 	
 	//*******************************************************
-	#ifdef PRINT
 	cout << "---------[Program start]----------" << endl;
-	#endif
 
 	/*	if (argc < 3) {
 	 fprintf(stderr, "Usage: mnist <k> <mnist path> [<nr train images> <nr test images>]\n");
@@ -112,12 +110,12 @@ int main() {
 				<< "\tt10k-images-idx3-ubyte\n" << endl;
 		exit(-1);
 	}
-
+/*
 	trainLabels->count = 60000;
 	trainImages->count = 60000;
-	testLabels->count = 53;
-	testImages->count = 53;
-
+	testLabels->count = 6000;
+	testImages->count = 6000;
+*/
 	unsigned char label;
 	unsigned char *image;
 
@@ -192,16 +190,14 @@ int main() {
 		cb.num_spes = MAX_NUM_SPES;
 	}
 	
+#ifdef PRINT
 	printf("PPE:\t Num spes = %d\n", cb.num_spes);
-
+#endif
+	
 	uint32_t num;
 
-	printf("PPE:\t Start program\n");
+	printf("PPE:\t Start calculating\n");fflush(stdout);
 
-	Point<int, int> *fu = test_points.getPoint(0);
-	fu->print();
-	delete fu;
-	
 	// create SPE context and load SPE program into the SPE context
 	for (num=0; num<cb.num_spes; num++) {
 		if ((data[num].spe_ctx = spe_context_create(SPE_MAP_PS|SPE_CFG_SIGNOTIFY1_OR|SPE_CFG_SIGNOTIFY2_OR, NULL))==NULL) {
@@ -224,18 +220,18 @@ int main() {
 
 	// map SPE's MFC problem state to main storage (get effective address)
 	for (num=0; num<cb.num_spes; num++) {
-		if ((cb.spu_mfc_ctl[num] = (uint64_t)spe_ps_area_get(data[num].spe_ctx, SPE_CONTROL_AREA))==NULL) {
+		if ((cb.spu_mfc_ctl[num] = (uint64_t)spe_ps_area_get(data[num].spe_ctx, SPE_CONTROL_AREA))==0) {
 			perror("Failed mapping MFC control area");
 			exit(1);
 		}
-		if ((cb.spu_ls[num] = (uint64_t)spe_ls_area_get(data[num].spe_ctx))==NULL) {
+		if ((cb.spu_ls[num] = (uint64_t)spe_ls_area_get(data[num].spe_ctx))==0) {
 			perror("Failed mapping SPU local store");
 			exit(1);
 		}
-		if ((cb.spu_sig1[num] = (uint64_t)spe_ps_area_get( data[num].spe_ctx, SPE_SIG_NOTIFY_1_AREA))==NULL){
+		if ((cb.spu_sig1[num] = (uint64_t)spe_ps_area_get( data[num].spe_ctx, SPE_SIG_NOTIFY_1_AREA))==0){
 			perror ("Failed mapping Signal1 area");	exit (1);
 		}
-		if ((cb.spu_sig2[num] = (uint64_t)spe_ps_area_get( data[num].spe_ctx, SPE_SIG_NOTIFY_2_AREA))==NULL){
+		if ((cb.spu_sig2[num] = (uint64_t)spe_ps_area_get( data[num].spe_ctx, SPE_SIG_NOTIFY_2_AREA))==0){
 			perror ("Failed mapping Signal2 area");	exit (1);
 		}
 	}
@@ -243,8 +239,6 @@ int main() {
 	
 	// send each SPE its number using BLOCKING mailbox write
 	for (num=0; num<cb.num_spes; num++) {
-		printf("PPE -> SPE%d:\t <%u>\n", num, num);
-
 		// write 1 entry to in_mailbox - we don't know if we have availalbe space so use blocking
 		// cb parameter have to be loaded after receiving local id!!!
 		spe_in_mbox_write(data[num].spe_ctx, (uint32_t*)&num, 1, SPE_MBOX_ALL_BLOCKING);
