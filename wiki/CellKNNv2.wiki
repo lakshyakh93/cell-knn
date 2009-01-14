@@ -19,9 +19,9 @@ In the code repository you can find the final version of our parallel k-NN imple
 
 Compared to version 1.0 and the sequential implementation we now have a drastic performance increase. See the table below for the time needed classifying 10000 test points using 60000 training points with both the sequential and the parallel (version 2.0) k-NN implementation.
 
-|| *Version* || *Overall Time* || *Time Per Test Point* ||
-|| Cell k-NN Sequential || 12 000s || 1.2s ||
-|| Cell k-NN 1.0 || 5 200 000s || 520s ||
-|| Cell k-NN 2.0 || 634s || 0.0634s ||
+|| *Version* || *Overall Time* || *Time Per Test Point* || Speedup compared to Seq. V. ||
+|| Cell k-NN Sequential || 12 000s || 1.2s || 1 ||
+|| Cell k-NN 1.0 || 5 200 000s || 520s || 0.0023 ||
+|| Cell k-NN 2.0 || 634s || 0.0634s || 18.93 ||
 
 As you can see, we have a speedup of 18.93 comparing the parallel to the sequential implementation.
