@@ -53,7 +53,7 @@ LIBRARY_embed64	:= lib_spu.a
 IMPORTS		:= -lmisc -lm
 INCLUDE		:= -I ../include/
 
-CC_OPT_LEVEL = -g3
+#CC_OPT_LEVEL = -g3
 
 
 ########################################################################

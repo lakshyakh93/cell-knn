@@ -13,11 +13,11 @@
 
 CONTROL_BLOCK cb __attribute__((aligned(16)));
 
- char trainingValues[2][TRAINING_VALUES_MAX_SIZE] __attribute__((aligned(128)));
- char testValues[TEST_VALUES_MAX_SIZE] __attribute__((aligned(128)));
- char *trainingLabels[2];
- char *testLabels;
- 
+char trainingValues[2][TRAINING_VALUES_MAX_SIZE] __attribute__((aligned(128)));
+char testValues[TEST_VALUES_MAX_SIZE] __attribute__((aligned(128)));
+char *trainingLabels[2];
+char *testLabels;
+
 uint32_t my_num;
 uint32_t tagId[2];
 
@@ -42,110 +42,75 @@ uint32_t fillBuffer(char *buffer, uint32_t tagId, uint64_t address, uint32_t tra
 	return offset;
 }
 
-double distance(Point<int, int> &testPoint,	Point<int, int> &trainPoint) {
+double distance(Point<int, int> &testPoint, Point<int, int> &trainPoint) {
 	float result = 0.0;
-	
-	#ifndef SIMD
+
+#ifndef SIMD
 	float sum = 0.0, temp;
 	for (int i = 0; i < testPoint.getDimension(); ++i) {
 		temp = static_cast<float>(testPoint.getValues()[i] - trainPoint.getValues()[i]);
 		sum += temp * temp;
 	}
 	result = sum;
-	#endif
-	
-	#ifdef SIMD
+#endif
+
+#ifdef SIMD
 	float sum = 0.0;
-	/*
+
 	int size = testPoint.getDimension() / 4;
-	int *temp1 = (int *) malloc_align(cb.values_size, 7);
-	float *temp2 = (float *) malloc_align(cb.values_size, 7);
-	
-	vector signed int *trainVec = (vector signed int *)  trainPoint.getValues();
-	vector signed int *testVec = (vector signed int *)  testPoint.getValues();
-	
-	vector signed int *distVec = (vector signed int *) temp1;
-	vector float *distVecF = (vector float *) temp2;
-	
-	for (int i = 0; i < size; i++) {
-		distVec[i] = spu_sub(trainVec[i], testVec[i]);
-		distVecF[i] = spu_convtf(distVec[i], 0);
-		distVecF[i] = spu_mul(distVecF[i], distVecF[i]);
-		
-		sum += spu_extract(distVecF[i], i);
-	}
-	
-	free_align(temp1);
-	free_align(temp2);
-	*/
-	
-	for (int i = 0; i < testPoint.getDimension() / 4; i += 4) {
-		vector unsigned int distVec;
-		vector float distVecF;
-		
-		vector unsigned int trainVec = (vector unsigned int) {trainPoint.getValues()[i], trainPoint.getValues()[i + 1], trainPoint.getValues()[i + 2], trainPoint.getValues()[i + 3]};
-		vector unsigned int testVec = (vector unsigned int) {testPoint.getValues()[i], testPoint.getValues()[i + 1], testPoint.getValues()[i + 2], testPoint.getValues()[i + 3]};
-		
-		distVec = spu_sub(trainVec, testVec);
+	vector signed int *trainVec = (vector signed int *) trainPoint.getValues();
+	vector signed int *testVec = (vector signed int *) testPoint.getValues();
+	vector signed int distVec;
+	vector float distVecF;
+
+	for (int j = 0; j < size; j++) {
+		distVec = spu_sub(trainVec[j], testVec[j]);
 		distVecF = spu_convtf(distVec, 0);
 		distVecF = spu_mul(distVecF, distVecF);
-		
-		for (int k = 0; k < 4; k++) {
-			sum += spu_extract(distVecF, k);
-		}
+
+		for(int k = 0; k < 4; k++)
+		sum += spu_extract(distVecF, k);
 	}
-	
+
 	result = sum;
-	#endif
+#endif
 
 	return result;
 }
 
-uint32_t calculate(Points<int, int> &test_points, Points<int, int> &training_points,
-		float *distances, int *labels) {
-	//iterate over test_points
-	//calculate temporary knn over training points (~30 points)
-	//store a sorted list for each testpoint sortedlists (=> created in streamdata or globally)
-	// => cb.test_points_per_transfer sorted lists
-	//int label = KNN<int, int>::classify(test_points, training_points, *list);
-	
-	//printf("SPE%d: label = %d", my_num, label);
-	
+uint32_t calculate(Points<int, int> &test_points, Points<int, int> &training_points, float *distances, int *labels) {
 	for (int j = 0; j < test_points.getCount(); j++) {
-		Point<int, int> *testPoint =  test_points.getPoint(j);
+		Point<int, int> *testPoint = test_points.getPoint(j);
 		Point<int, int> *trainPoint;
-		
+
 		for (int i = 0; i < training_points.getCount(); ++i) {
 			trainPoint = training_points.getPoint(i);
 			float d = distance(*testPoint, *trainPoint);
-			//printf("SPE%d: distance = %lf\n", my_num, d);
 			//sortedlist.insert(d, trainPoint->getLabel());
-			
+
 			if (distances[j] == -1.0 || distances[j] > d) {
 				distances[j] = d;
 				labels[j] = trainPoint->getLabel();
 			}
-			
+
 			delete trainPoint;
 		}
-		
+
 		delete testPoint;
 	}
-	
-	//return KNN<L, T>::majorityVote(sortedlist);
-	
+
 	return 0;
 }
 
 uint32_t streamData(Points<int, int> &test_points) {
 	float *distances = (float *) malloc_align(test_points.getCount() * sizeof(float), 7);
 	int *labels = (int *) malloc_align(test_points.getCount() * sizeof(int), 7);
-	
+
 	for (int i = 0; i < test_points.getCount(); i++) {
 		distances[i] = -1.0;
 		labels[i] = -1;
 	}
-	
+
 	uint32_t transfer[2], count[2], iteration = 0;
 
 	// Reset size data.
@@ -173,14 +138,12 @@ uint32_t streamData(Points<int, int> &test_points) {
 		printf("Error occured at transfering training points 0");
 		return -1;
 	}
-	
-	if (count[0] * cb.label_size != fillBuffer(trainingLabels[0], tagId[0], ea_training_labels,
-			count[0] * cb.label_size)) {
+
+	if (count[0] * cb.label_size != fillBuffer(trainingLabels[0], tagId[0], ea_training_labels, count[0] * cb.label_size)) {
 		printf("Error occured at transfering training labels 0");
 		fflush(stdout);
 		return -1;
 	}
-
 
 #ifdef PRINT
 	printf("SPE%d:\tTransfer %d on Buffer 0 initiated\n", my_num, iteration);
@@ -207,8 +170,7 @@ uint32_t streamData(Points<int, int> &test_points) {
 		return -1;
 	}
 
-	if (count[1] * cb.label_size != fillBuffer(trainingLabels[1], tagId[1], ea_training_labels,
-			count[1] * cb.label_size)) {
+	if (count[1] * cb.label_size != fillBuffer(trainingLabels[1], tagId[1], ea_training_labels, count[1] * cb.label_size)) {
 		printf("Error occured at transfering training labels 0");
 		fflush(stdout);
 		return -1;
@@ -227,7 +189,7 @@ uint32_t streamData(Points<int, int> &test_points) {
 		printf("SPE%d:\tTransfer %d on Buffer 0 complete\n", my_num, iteration);
 		fflush(stdout);
 #endif
-		
+
 		// adjust remaining amount of data
 		size_data -= transfer[0];
 
@@ -260,9 +222,9 @@ uint32_t streamData(Points<int, int> &test_points) {
 
 		// TrainingPoints0 loaded, create Object
 		Points<int, int> training_points0(cb.training_points_per_transfer, cb.training_dimension, trainingLabels[0], trainingValues[0]);
-		
-			// do calcualtions on buffer
-			calculate(test_points,training_points0, distances, labels);
+
+		// do calcualtions on buffer
+		calculate(test_points, training_points0, distances, labels);
 
 		// check if dma1 finished
 		if (size_data > 0) //TODO check condition
@@ -334,15 +296,12 @@ uint32_t streamData(Points<int, int> &test_points) {
 				return -1;
 			}
 
-			
-			if (count[0] * cb.label_size != fillBuffer(trainingLabels[0], tagId[0], ea_training_labels,
-					count[0] * cb.label_size)) {
+			if (count[0] * cb.label_size != fillBuffer(trainingLabels[0], tagId[0], ea_training_labels, count[0] * cb.label_size)) {
 				printf("Error occured at transfering training labels 0");
 				fflush(stdout);
 				return -1;
 			}
 
-			
 #ifdef PRINT
 			printf("SPE%d:\tTransfer %d on Buffer 0 initiated\n", my_num, iteration+1);
 			fflush(stdout);
@@ -351,9 +310,9 @@ uint32_t streamData(Points<int, int> &test_points) {
 
 		// TrainingPoints0 loaded, create Object
 		Points<int, int> training_points1(cb.training_points_per_transfer, cb.training_dimension, trainingLabels[1], trainingValues[1]);
-		
-			// do calcualtions on buffer
-			calculate(test_points, training_points1, distances, labels);
+
+		// do calcualtions on buffer
+		calculate(test_points, training_points1, distances, labels);
 
 		// check if buffer is already copied (may be overwritten before it's copied otherwise)
 		if (my_num != cb.num_spes-1) {
@@ -386,15 +345,12 @@ uint32_t streamData(Points<int, int> &test_points) {
 				return -1;
 			}
 
-			if (count[1] * cb.label_size != fillBuffer(trainingLabels[1], tagId[1], ea_training_labels,
-					count[1] * cb.label_size)) {
+			if (count[1] * cb.label_size != fillBuffer(trainingLabels[1], tagId[1], ea_training_labels, count[1] * cb.label_size)) {
 				printf("Error occured at transfering training labels 0");
 				fflush(stdout);
 				return -1;
 			}
 
-
-			
 #ifdef PRINT
 			printf("SPE%d:\tTransfer %d on Buffer 1 initiated\n", my_num, iteration+1);
 			fflush(stdout);
@@ -404,27 +360,27 @@ uint32_t streamData(Points<int, int> &test_points) {
 		// increase iteration counter
 		iteration++;
 	}
-	
+
+#ifdef PRINT
 	for (int i = 0; i < test_points.getCount(); i++) {
-		int bad = labels[i] != test_points.getPoint(i)->getLabel();
-		
-		printf("SPE%d: given label = %d, resulting label = %d (bad = %d)\n",
-				my_num, labels[i], test_points.getPoint(i)->getLabel(), bad);
+		Point<int, int> *temp = test_points.getPoint(i);
+		int bad = labels[i] != temp->getLabel();
+
+		printf("SPE%d: given label = %d, resulting label = %d (bad = %d)\n", my_num, labels[i], test_points.getPoint(i)->getLabel(), bad);
 		fflush(stdout);
+		
+		delete temp;
 	}
-	
+#endif
+
 	free_align(distances);
 	free_align(labels);
-	
+
 	//print sorted lists (see calculate(...) for more information on sorted lists)
-return 0;
+	return 0;
 }
 
 int main(unsigned long long speid, unsigned long long argp, unsigned long long envp) {
-	uint64_t ea_test_points, ea_test_labels;
-	//uint32_t training_count, dimensions, test_count, test_data_size, point_size, size_data_start;
-	//uint64_t ea_test_points, ea_test_labels, ea_training_points_start;
-
 #ifdef PRINT
 	printf("SPE%d:\tstarted\n", my_num);
 	fflush(stdout);
@@ -445,10 +401,6 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 	// now it's safe to load parameters 
 	mfc_get(&cb, argp, sizeof(CONTROL_BLOCK), tagId[0], 0, 0);
 	waittag(tagId[0]);
-	
-	if (my_num == 0) {
-		print_control_block(&cb);
-	}
 
 	testLabels = (char *) malloc_align(cb.label_size * cb.test_points_per_transfer, 7);
 	trainingLabels[0] = (char *) malloc_align(cb.label_size * cb.training_points_per_transfer, 7);
@@ -463,96 +415,83 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 	if (cb.test_count % cb.test_points_per_transfer != 0) {
 		test_point_transfers++;
 	}
-	
+
 	uint32_t test_point_transfers_per_spu = test_point_transfers / cb.num_spes;
 	if (test_point_transfers % cb.num_spes != 0) {
 		test_point_transfers_per_spu++;
 	}
-	
-	uint32_t test_points_per_spu = test_point_transfers_per_spu 
-		* cb.test_points_per_transfer;
-	
-	uint32_t range = cb.test_count/cb.num_spes;	
+
+	uint32_t range = cb.test_count/cb.num_spes;
 	uint32_t start = my_num * range;
 	uint32_t end = start+range-1;
-	
+
 	uint32_t rest = cb.test_count % cb.num_spes;
-	if (rest != 0)
-	{
-		if (my_num < rest)
-		{
+	if (rest != 0) {
+		if (my_num < rest) {
 			start += my_num;
 			end += my_num + 1;
 			range++;
-		}
-		else
-		{
+		} else {
 			start += rest;
 			end += rest;
 		}
 	}
-	
-	for (uint32_t test_point_transfer = 0, index = start; test_point_transfer < test_point_transfers_per_spu; 
-			test_point_transfer++, index += cb.test_points_per_transfer) {
-		/*
-		printf("SPE%d: %d - %d\n", my_num, index, end);
-		fflush(stdout);
-		*/
-		
+
+	for (uint32_t test_point_transfer = 0, index = start; test_point_transfer < test_point_transfers_per_spu; test_point_transfer++, index
+			+= cb.test_points_per_transfer) {
 #ifdef PRINT
 		printf("SPE%d:\ttest iteration %d started\n", my_num, test_point_transfer);
 		fflush(stdout);
 #endif
-		
+
 #ifdef DEBUG
 		printf("%llu \t %llu \n",ea_test_points,cb.ea_test_points);
 #endif
-		
+
 		// Check if we would exceed end index.
-		if (index + cb.test_points_per_transfer >= end) {
+		if (index + cb.test_points_per_transfer > end) {
 			cb.test_points_per_transfer = (end - index) + 1;
 		}
+
+		
+		 printf("SPE%d: %d - %d\t%d of %d\n", my_num, index, index + cb.test_points_per_transfer -1,test_point_transfer + 1, test_point_transfers_per_spu);
+		 fflush(stdout);
 		
 		Points<int, int> *test_points = 0;
-		
-		if (index <= end) 
-		{
+
+		if (cb.test_points_per_transfer > 0) {
 			// fill test point and label buffer
-			if (cb.test_points_per_transfer * cb.values_size != fillBuffer(testValues, tagId[0], 
-					cb.ea_test_points + index * cb.values_size,
+			if (cb.test_points_per_transfer * cb.values_size != fillBuffer(testValues, tagId[0], cb.ea_test_points + index * cb.values_size,
 					cb.test_points_per_transfer * cb.values_size)) {
 				printf("Error occured at transfering test points");
 				fflush(stdout);
 				return -1;
 			}
-	
-			if (cb.test_points_per_transfer * cb.label_size != fillBuffer(testLabels, tagId[0], 
-					cb.ea_test_labels + index * cb.label_size,
+
+			if (cb.test_points_per_transfer * cb.label_size != fillBuffer(testLabels, tagId[0], cb.ea_test_labels + index * cb.label_size,
 					cb.test_points_per_transfer * cb.label_size)) {
 				printf("Error occured at transfering test labels");
 				fflush(stdout);
 				return -1;
 			}
-	
+
 			waittag(tagId[0]);
-	
-	#ifdef DEBUG
+
+#ifdef DEBUG
 			printf("Adresses = %d \t %d \n",((int *)testValues)[0], ((int *)testLabels)[0]);
-	#endif
+#endif
 			// TestPoints loaded, create Objects
 			test_points = new Points<int, int>(cb.test_points_per_transfer, cb.test_dimension, testLabels, testValues);
-		}
-		else
-		{
+		} else {
 			test_points = new Points<int, int>(0, 0, testLabels, testValues);
 			printf("%d SKIP\n", my_num);
 			fflush(stdout);
 		}
-		
+
 		streamData(*test_points);
-		
+
 		delete test_points;
-		
+
 #ifdef PRINT
 		printf("SPE%d:\ttest iteration %d finished\n", my_num, test_point_transfer);
 		fflush(stdout);
