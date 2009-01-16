@@ -3,34 +3,31 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <iterator>
 
 /**
 * @brief SortedList class used to organice the distances of Images with the according labels. \n
 *       Elements with smaller keys (distances) are always inserted, elements with greater keys not always, depending of the current size and the maximum size of the list.
 */
 template <class K, class V> class SortedList {
+public:
 /**
 * @brief Node for the LinkedList with key and value
 */
-	struct node {
-		K key;
-		V value;
-		node *next;
-		node(K k, V v, node* n) :
-			key(k), value(v), next(n) {
-		}
-		node(K k, V v) :
-			key(k), value(v), next(NULL) {
-		}
-	};
-	int maxSize;
-	int currSize;
-	node *head;
-public:
+        struct node {
+                K key;
+                V value;
+                node *next;
+                node(K k, V v, node* n) :
+                        key(k), value(v), next(n) {
+                }
+                node(K k, V v) :
+                        key(k), value(v), next(NULL) {
+                }
+        };
+
 /**
 * @brief Constructor with the maximal size of the list as argument
-*
+* 
 * @param m Maximal size of the list
 */
 	SortedList(int m) :
@@ -43,63 +40,12 @@ public:
 	bool isFull();
 	int insert(K key, V value);
 	void print();
-/**
-* @brief Iterator to iterate over the list
-*/
-	class Iterator : public std::iterator<std::forward_iterator_tag, K, V> {
+        node* getHead();
+
 private:
-		node* nd;
-public:
-		Iterator(node* p) :
-			nd(p) {
-		}
-		~Iterator() {
-		}
-
-		Iterator& operator=(const Iterator& other) {
-			nd = other.nd;
-			return (*this);
-		}
-
-		bool operator==(const Iterator& other) {
-			return (nd == other.nd);
-		}
-
-		bool operator!=(const Iterator& other) {
-			return (nd != other.nd);
-		}
-
-		Iterator& operator++() {
-			if (nd != NULL) {
-				nd = nd->next;
-			}
-			return (*this);
-		}
-
-		Iterator& operator++(int) {
-			Iterator tmp(*this);
-			++(*this);
-			return (tmp);
-		}
-
-		// Return by reference not value (like most container classes do) 
-		node operator*() {
-			return *nd;
-		}
-
-		node* operator->() {
-			return nd;
-		}
-
-	};
-	Iterator begin() {
-		return (Iterator(head));
-	}
-
-	Iterator end() {
-		return (Iterator(NULL));
-	}
-
+        int maxSize;
+	int currSize;
+        node *head;
 };
 
 template <class K, class V> 
@@ -213,37 +159,9 @@ int SortedList<K, V>::insert(K key, V value) {
 	return ++currSize;;
 }
 
-
-// **********************
-// *main fct for testing*
-// **********************
-/*
-int main() {
-	SortedList<char> mylist(5);
-	mylist.insert(5, '5');
-	mylist.print();
-	mylist.insert(6, '5');
-	mylist.print();
-	mylist.insert(3, '5');
-	mylist.print();
-	mylist.insert(5, '5');
-	mylist.print();
-	mylist.insert(8, '5');
-	mylist.print();
-	mylist.insert(8, '5');
-	mylist.print();
-	mylist.insert(8, '5');
-	mylist.print();
-	mylist.insert(1, '5');
-	mylist.print();
-	mylist.insert(2, '5');
-	mylist.print();
-	
-	for (SortedList<char>::Iterator it = mylist.begin(); it != mylist.end(); ++it) {
-		std::cout << it->key << ": " << (*it).value << "\t";
-	}
-	std::cout << "\n";
+template <class K, class V>
+typename SortedList<K, V>::node* SortedList<K, V>::getHead() {
+    return head;
 }
-*/
 
 #endif /*SORTEDLIST_H_*/

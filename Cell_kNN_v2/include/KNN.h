@@ -1,7 +1,6 @@
 #ifndef KNN_H_
 #define KNN_H_
 
-#include <map>
 #include "SortedList.h"
 #include "Points.h"
 
@@ -88,22 +87,44 @@ static L classify(Point<L, T> &testPoint, Points<L, T> &trainPoints, SortedList<
 */
 template <class L, class T>
 static L majorityVote(SortedList<double, L> &sortedlist) {
-	map<L, int> majorityVote;
+        L  *labels = new L[sortedlist.getCurrSize()];
+        int *count = new int[sortedlist.getCurrSize()];
+        int size = 0, i = 0, j = 0;
+        typename SortedList<double, L>::node *head = sortedlist.getHead();
 
-	for (typename SortedList<double, L>::Iterator it = sortedlist.begin(); it != sortedlist.end(); ++it) {
-		majorityVote[it->value]++;
-	}
+        for (i = 0; i < sortedlist.getCurrSize(); i ++) {
+            //labels[i] =  0;
+            count[i] = 0;
+        }
 
-	int maxVal = 0;
-	L max;
 
-	for (map<int, int>::iterator it = majorityVote.begin(); it	!= majorityVote.end(); ++it) {
-		if (it->second > maxVal) {
-			maxVal = it->second;
-			max = it->first;
-		}
-	}
-	
+        for (i = 0; i < sortedlist.getCurrSize(); i++) {
+            for (j = 0; j <= size; j++) {
+                if (j == size) { // create new labels entry
+                    labels[j] = head->value;
+                    size++;
+                    break;
+                } else if (head->value == labels[j]) { // key found
+                    break;
+                }
+            }
+                count[j]++;
+                head = head->next;
+        }
+
+
+        int maxCount = 0;
+        L max = (L) 0;
+
+        for (i = 0; i < size; i++) {
+            if (count[i] > maxCount) {
+                maxCount = count[i];
+                max = labels[i];
+            }
+        }
+
+        delete [] labels;
+        delete [] count;
 	return max;
 }
 
