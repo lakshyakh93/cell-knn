@@ -43,18 +43,17 @@
 #			Target
 ########################################################################
 
-PROGRAM_spu 	:= spu
-LIBRARY_embed64	:= lib_spu.a
+PROGRAM_spu = cellknn_spu
+LIBRARY_embed64	= libcellknn_spu.a
 
 ########################################################################
 #			Local Defines
 ########################################################################
 
-IMPORTS		:= -lmisc -lm
-INCLUDE		:= -I ../include/
+IMPORTS	= -lmisc -lm
+INCLUDE	= -I ../include/
 
 #CC_OPT_LEVEL = -g3
-
 
 ########################################################################
 #			buildutils/make.footer
