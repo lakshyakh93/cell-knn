@@ -145,7 +145,7 @@ uint32_t streamData(Points<int, int> &test_points) {
 		return -1;
 	}
 
-#ifdef PRINT
+#ifdef DEBUG
 	printf("SPE%d:\tTransfer %d on Buffer 0 initiated\n", my_num, iteration);
 	fflush(stdout);
 #endif
@@ -176,7 +176,7 @@ uint32_t streamData(Points<int, int> &test_points) {
 		return -1;
 	}
 
-#ifdef PRINT
+#ifdef DEBUG
 	printf("SPE%d:\tTransfer %d on Buffer 1 initiated\n", my_num, iteration);
 	fflush(stdout);
 #endif
@@ -185,7 +185,7 @@ uint32_t streamData(Points<int, int> &test_points) {
 		// check if dma0 finished
 		waittag(tagId[0]);
 
-#ifdef PRINT
+#ifdef DEBUG
 		printf("SPE%d:\tTransfer %d on Buffer 0 complete\n", my_num, iteration);
 		fflush(stdout);
 #endif
@@ -230,7 +230,7 @@ uint32_t streamData(Points<int, int> &test_points) {
 		if (size_data > 0) //TODO check condition
 			waittag(tagId[1]);
 
-#ifdef PRINT
+#ifdef DEBUG
 		printf("SPE%d:\tTransfer %d on Buffer 1 complete\n", my_num, iteration);
 		fflush(stdout);
 #endif
@@ -302,7 +302,7 @@ uint32_t streamData(Points<int, int> &test_points) {
 				return -1;
 			}
 
-#ifdef PRINT
+#ifdef DEBUG
 			printf("SPE%d:\tTransfer %d on Buffer 0 initiated\n", my_num, iteration+1);
 			fflush(stdout);
 #endif
@@ -351,7 +351,7 @@ uint32_t streamData(Points<int, int> &test_points) {
 				return -1;
 			}
 
-#ifdef PRINT
+#ifdef DEBUG
 			printf("SPE%d:\tTransfer %d on Buffer 1 initiated\n", my_num, iteration+1);
 			fflush(stdout);
 #endif
@@ -381,11 +381,6 @@ uint32_t streamData(Points<int, int> &test_points) {
 }
 
 int main(unsigned long long speid, unsigned long long argp, unsigned long long envp) {
-#ifdef PRINT
-	printf("SPE%d:\tstarted\n", my_num);
-	fflush(stdout);
-#endif
-
 	if ((tagId[0]= mfc_tag_reserve())==MFC_TAG_INVALID) {
 		printf("SPE: ERROR can't allocate tag ID\n");
 		return -1;
@@ -397,6 +392,11 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 
 	// read from PPE my number using BLOCKING mailbox read	
 	my_num = spu_read_in_mbox();
+	
+#ifdef PRINT
+	printf("SPE%d: started\n", my_num);
+	fflush(stdout);
+#endif
 
 	// now it's safe to load parameters 
 	mfc_get(&cb, argp, sizeof(ControlBlock), tagId[0], 0, 0);
@@ -407,7 +407,7 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 	trainingLabels[1] = (char *) malloc_align(cb.label_size * cb.training_points_per_transfer, 7);
 
 #ifdef PRINT
-	printf("SPE%d:\tSetup complete\n", my_num);
+	printf("SPE%d: Setup complete\n", my_num);
 	fflush(stdout);
 #endif
 
@@ -440,7 +440,7 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 	for (uint32_t test_point_transfer = 0, index = start; test_point_transfer < test_point_transfers_per_spu; test_point_transfer++, index
 			+= cb.test_points_per_transfer) {
 #ifdef PRINT
-		printf("SPE%d:\ttest iteration %d started\n", my_num, test_point_transfer);
+		printf("SPE%d: test iteration %d started\n", my_num, test_point_transfer);
 		fflush(stdout);
 #endif
 
@@ -452,10 +452,11 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 		if (index + cb.test_points_per_transfer > end) {
 			cb.test_points_per_transfer = (end - index) + 1;
 		}
-
 		
-		 printf("SPE%d: %d - %d\t%d of %d\n", my_num, index, index + cb.test_points_per_transfer -1,test_point_transfer + 1, test_point_transfers_per_spu);
-		 fflush(stdout);
+#ifdef DEBUG
+		printf("SPE%d: %d - %d\t%d of %d\n", my_num, index, index + cb.test_points_per_transfer -1,test_point_transfer + 1, test_point_transfers_per_spu);
+		fflush(stdout);
+#endif
 		
 		Points<int, int> *test_points = 0;
 
@@ -493,7 +494,7 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 		delete test_points;
 
 #ifdef PRINT
-		printf("SPE%d:\ttest iteration %d finished\n", my_num, test_point_transfer);
+		printf("SPE%d: test iteration %d finished\n", my_num, test_point_transfer);
 		fflush(stdout);
 #endif
 	} // End loop over test points.
@@ -504,7 +505,7 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 	free_align(trainingLabels[1]);
 
 #ifdef PRINT
-	printf("SPE%d:\tended\n", my_num);
+	printf("SPE%d: ended\n", my_num);
 	fflush(stdout);
 #endif
 
