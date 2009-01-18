@@ -229,10 +229,12 @@ int main() {
 		exit(-1);
 	}
 
+	/*
 	trainLabels->count = 1000;
 	trainImages->count = 1000;
 	testLabels->count = 10;
 	testImages->count = 10;
+	*/
 
 	unsigned char label;
 	unsigned char *image;
