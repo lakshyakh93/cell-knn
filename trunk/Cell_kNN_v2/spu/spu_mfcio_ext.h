@@ -97,7 +97,7 @@ inline int status_outintr_mbox(uint64_t ea_mfc, uint32_t tag_id)
 	return status;
 }
 
-// writing to a remote SPEs inbound mailbox
+// writing to a remote SPE's inbound mailbox
 inline int write_in_mbox(uint32_t data, uint64_t ea_mfc, uint32_t tag_id){
 
 	int status;
@@ -124,7 +124,7 @@ inline int write_in_mbox(uint32_t data, uint64_t ea_mfc, uint32_t tag_id){
 	return 1; // number of mailbox being written
 }
 
-// signal a remote SPEs signal1 register
+// signal a remote SPE's signal1 register
 inline int write_signal1(uint32_t data, uint64_t ea_sig1, uint32_t tag_id)
 {
 	uint64_t ea_sig1_notify = ea_sig1 + SPU_SIG_NOTIFY_OFFSET;	
@@ -146,7 +146,7 @@ inline int write_signal1(uint32_t data, uint64_t ea_sig1, uint32_t tag_id)
 	return 1; // number of mailbox being written
 }
 
-// signal a remote SPEs signal1 register
+// signal a remote SPE's signal1 register
 inline int write_signal2(uint32_t data, uint64_t ea_sig2, uint32_t tag_id)
 {
 	uint64_t ea_sig2_notify = ea_sig2 + SPU_SIG_NOTIFY_OFFSET;	
@@ -168,12 +168,4 @@ inline int write_signal2(uint32_t data, uint64_t ea_sig2, uint32_t tag_id)
 	return 1; // number of mailbox being written
 }
 
-
-
-
-
-
-
-
 #endif
-
