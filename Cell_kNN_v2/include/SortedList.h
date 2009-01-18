@@ -1,7 +1,6 @@
 #ifndef SORTEDLIST_H_
 #define SORTEDLIST_H_
 
-#include <cstdlib>
 #include <iostream>
 
 /**
