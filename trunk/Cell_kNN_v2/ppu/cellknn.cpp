@@ -10,16 +10,15 @@
 #include <cbe_mfc.h>
 #include <pthread.h>
 #include <time.h>
-
 #include <unistd.h>
 
+#include "mnist.h"
 #include "cellknn.h"
 #include "KNN.h"
-#include "libMnist.cpp" // TODO why .cpp?
 
-CONTROL_BLOCK cb __attribute__((aligned(16)));
+ControlBlock cb __attribute__((aligned(16)));
 
-extern spe_program_handle_t spu;
+extern spe_program_handle_t cellknn_spu;
 
 // Data structures to work with the SPE
 //============================================================================
@@ -110,12 +109,12 @@ int main() {
 				<< "\tt10k-images-idx3-ubyte\n" << endl;
 		exit(-1);
 	}
-/*
-	trainLabels->count = 60000;
-	trainImages->count = 60000;
-	testLabels->count = 6000;
-	testImages->count = 6000;
-*/
+
+	trainLabels->count = 1000;
+	trainImages->count = 1000;
+	testLabels->count = 10;
+	testImages->count = 10;
+
 	unsigned char label;
 	unsigned char *image;
 
@@ -204,7 +203,7 @@ int main() {
 			perror("Failed creating context");
 			exit(1);
 		}
-		if (spe_program_load(data[num].spe_ctx, &spu)) {
+		if (spe_program_load(data[num].spe_ctx, &cellknn_spu)) {
 			perror("Failed loading program");
 			exit(1);
 		}
