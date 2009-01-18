@@ -11,7 +11,7 @@
 #include "cellknn.h"
 #include "Points.h"
 
-CONTROL_BLOCK cb __attribute__((aligned(16)));
+ControlBlock cb __attribute__((aligned(16)));
 
 char trainingValues[2][TRAINING_VALUES_MAX_SIZE] __attribute__((aligned(128)));
 char testValues[TEST_VALUES_MAX_SIZE] __attribute__((aligned(128)));
@@ -69,7 +69,7 @@ double distance(Point<int, int> &testPoint, Point<int, int> &trainPoint) {
 		distVecF = spu_mul(distVecF, distVecF);
 
 		for(int k = 0; k < 4; k++)
-		sum += spu_extract(distVecF, k);
+			sum += spu_extract(distVecF, k);
 	}
 
 	result = sum;
@@ -399,7 +399,7 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 	my_num = spu_read_in_mbox();
 
 	// now it's safe to load parameters 
-	mfc_get(&cb, argp, sizeof(CONTROL_BLOCK), tagId[0], 0, 0);
+	mfc_get(&cb, argp, sizeof(ControlBlock), tagId[0], 0, 0);
 	waittag(tagId[0]);
 
 	testLabels = (char *) malloc_align(cb.label_size * cb.test_points_per_transfer, 7);
