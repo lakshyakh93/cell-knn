@@ -36,7 +36,8 @@ typedef struct {
 	uint64_t ea_training_labels;	
 	uint64_t ea_test_points;
 	uint64_t ea_test_labels;
-	// 32
+	uint64_t ea_test_labels_calculated;
+	// 40
 	
 	uint64_t spu_mfc_ctl[MAX_NUM_SPES];
 	uint64_t spu_ls[MAX_NUM_SPES];
@@ -44,7 +45,7 @@ typedef struct {
 	uint64_t spu_sig2[MAX_NUM_SPES];
 	// 4 * 8 * 8 = 256
 	
-	char padding[128 - 16 - 2 * 16 - 32];
+	char padding[128 - 16 - 2 * 16 - 32 - 8];
 } ControlBlock; // => sizeof(CONTROL_BLOCK) == 3 * 128!!!
 
 #endif /*CELLKNN_H_*/

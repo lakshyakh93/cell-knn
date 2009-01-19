@@ -77,7 +77,7 @@ void *spu_pthread(void *arg) {
  *         label of the first test points. 
  */
 int *classify(int k, Points<int, int> &test_points,
-		Points<int, int> &training_points) {
+		Points<int, int> &training_points) {	
 	time_t start_time, end_time;
 
 	time(&start_time);
@@ -102,6 +102,9 @@ int *classify(int k, Points<int, int> &test_points,
 	cb.ea_training_labels = (uint64_t) training_points.getLabel(0);
 	cb.ea_test_points = (uint64_t) test_points.getValues(0);
 	cb.ea_test_labels = (uint64_t) test_points.getLabel(0);
+	
+	Points<int, int> test_points_results(test_points.getCount(), test_points.getDimension());
+	cb.ea_test_labels_calculated = (uint64_t) ((char *) test_points_results.getLabel(0));
 
 	cb.num_spes = spe_cpu_info_get(SPE_COUNT_USABLE_SPES, -1);
 	if (cb.num_spes > MAX_NUM_SPES) {
@@ -189,8 +192,15 @@ int *classify(int k, Points<int, int> &test_points,
 	double difference = difftime(end_time, start_time);
 	printf("It took %.2lf seconds to calculate %d test points and %d training points\n",
 			difference, cb.test_count, cb.training_count);
+	
+	// We have to create a new array, since the Points object is destroyed after this block.
+	// This array has to be freed somewhere outside this function.
+	int *result = (int *) malloc(test_points.getCount() * sizeof(int));
+	for (int i = 0; i < test_points.getCount(); i++) {
+		result[i] = test_points_results.getLabel(i)[0];
+	}
 
-	return 0;
+	return result;
 }
 
 //============================================================================
@@ -290,9 +300,18 @@ int main() {
 	
 	int *result = classify(k, test_points, training_points);
 	
-	// TODO: Analyze.
-	
 	if (result != 0) {
+		int errors = 0;		
+		for (int i = 0; i < test_points.getCount(); i++) {
+			if (result[i] != test_points.getLabel(i)[0]) {
+				errors++;
+			}
+		}
+		
+		float error_rate = (float) errors / (float) test_points.getCount();
+		printf("PPE:\t %d out of %d inaccurate classifications\n", errors, test_points.getCount());
+		printf("PPE:\t Error rate is %f\n", error_rate);
+		
 		free(result);
 	}
 
