@@ -47,12 +47,7 @@ int majorityVote(SortedMap *map) {
 	// A very basic and inefficient implementation of majority vote.
 	// Since it is likely that k is very small, this shouldnt matter that much ;)
 	
-	int occurrences = -1, max = -1;
-	
-	if (map->size > 0) {
-		occurrences = 1;
-		max = map->values[0];
-	}
+	int occurrences = 0, max = -1;
 	
 	for (int i = 0; i < map->size; i++) {
 		int temp = 0;
@@ -68,9 +63,7 @@ int majorityVote(SortedMap *map) {
 		}
 	}
 	
-	if (max >= 0) {
-		return max;
-	}
+	return max;
 }
 
 double distance(Point<int, int> &testPoint, Point<int, int> &trainPoint) {
@@ -129,17 +122,6 @@ uint32_t calculate(Points<int, int> &test_points, Points<int, int> &training_poi
 }
 
 uint32_t streamData(Points<int, int> &test_points) {
-	/*
-	float *distances = (float *) malloc_align(test_points.getCount() * sizeof(float), 7);
-	int *labels = (int *) malloc_align(test_points.getCount() * sizeof(int), 7);
-
-
-	for (int i = 0; i < test_points.getCount(); i++) {
-		distances[i] = -1.0;
-		labels[i] = -1;
-	}
-	*/	
-	
 	SortedMap **maps = (SortedMap **) malloc_align(test_points.getCount() * sizeof(SortedMap *), 7);
 	for (int i = 0; i < test_points.getCount(); i++) {
 		maps[i] = createSortedMap(cb.k);
@@ -397,6 +379,8 @@ uint32_t streamData(Points<int, int> &test_points) {
 
 	for (int i = 0; i < test_points.getCount(); i++) {
 		Point<int, int> *temp = test_points.getPoint(i);
+		
+		// Do majority vote on k nearest neighbours.
 		int calculated_label = majorityVote(maps[i]);
 
 #ifdef PRINT
@@ -407,21 +391,14 @@ uint32_t streamData(Points<int, int> &test_points) {
 #endif
 		temp->setLabel(calculated_label);
 		
-		delete temp;
-	}
-
-	for (int i = 0; i < test_points.getCount(); i++) {
+		// Free sorted map.
 		closeSortedMap(maps[i]);
+		
+		delete temp;
 	}
 	
 	free_align(maps);
-	
-	/*
-	free_align(distances);
-	free_align(labels);
-	*/
 
-	//print sorted lists (see calculate(...) for more information on sorted lists)
 	return 0;
 }
 
@@ -535,6 +512,11 @@ int main(unsigned long long speid, unsigned long long argp, unsigned long long e
 		}
 
 		streamData(*test_points);
+		
+		// Write back calculated labels to main memory.
+		mfc_put((void *) test_points->getLabel(0), cb.ea_test_labels_calculated + index * cb.label_size, 
+				cb.test_points_per_transfer * cb.label_size, tagId[0], 0, 0);
+		waittag(tagId[0]);
 
 		delete test_points;
 
