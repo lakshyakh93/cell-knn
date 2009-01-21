@@ -14,8 +14,10 @@ The team of this project implements a parallel version of the [kNN k-NN algorith
 
 = Results =
 
-Currently, two versions of the k-NN algorithm have been implemented:
- * [http://code.google.com/p/cell-knn/source/browse/#svn/trunk/Cell_kNN_v1 Cplusplu_kNN]: a _sequential_ implementation written in C++ for both x86 and Cell BE.
+Currently, three versions of the k-NN algorithm have been implemented:
+ * [http://code.google.com/p/cell-knn/source/browse/#svn/trunk/Cplusplus_kNN Cplusplus_kNN]: a _sequential_ implementation written in C++ for both x86 and Cell BE.
  * [http://code.google.com/p/cell-knn/source/browse/#svn/trunk/Cell_kNN_v1 Cell_kNN_v1]: a simple _parallel_ implementation written in C/C++ specifically for the Cell BE.
+ * [http://code.google.com/p/cell-knn/source/browse/#svn/trunk/Cell_kNN_v2 Cell_kNN_v2]: a more complex _parallel_ implementation written in C/C++ specifically for the Cell BE.
 
 See [CellKNNv1#Results Cell k-NN 1.0] for more information.
+See [CellKNNv1#Results Cell k-NN 2.0] for more information.
