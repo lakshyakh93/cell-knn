@@ -20,4 +20,4 @@ Currently, three versions of the k-NN algorithm have been implemented:
  * [http://code.google.com/p/cell-knn/source/browse/#svn/trunk/Cell_kNN_v2 Cell_kNN_v2]: a more complex _parallel_ implementation written in C/C++ specifically for the Cell BE.
 
 See [CellKNNv1#Results Cell k-NN 1.0] for more information.
-See [CellKNNv1#Results Cell k-NN 2.0] for more information.
+See [CellKNNv2#Results Cell k-NN 2.0] for more information.
