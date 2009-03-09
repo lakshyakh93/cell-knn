@@ -15,7 +15,7 @@ Considering the results obtained from analyzing Cell k-NN 1.0, we want to realiz
 == Results ==
 
 In the code repository you can find the final version of our parallel k-NN implementation:
- * [http://code.google.com/p/cell-knn/source/browse/#svn/trunk/Cell_kNN_v1 Cell_kNN_v1]: a _parallel_ implementation using the pipelining approach as described above.
+ * [http://code.google.com/p/cell-knn/source/browse/#svn/trunk/Cell_kNN_v2 Cell_kNN_v2]: a _parallel_ implementation using the pipelining approach as described above.
 
 Compared to version 1.0 and the sequential implementation we now have a drastic performance increase. See the table below for the time needed classifying 10000 test points using 60000 training points with both the sequential and the parallel (version 2.0) k-NN implementation.
 
