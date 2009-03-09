@@ -12,7 +12,7 @@ For making life easier we have created a Fedora 9 VMware image containing:
  * Cell IDE for Eclipse (fixed "21% Kernel Loading" problem)
  * GNU-toolchain
 
-The users and corresponding passwords are:
+You can use the following Linux accounts:
  * User: cell PW: cell
  * User: root PW: cellsdk
 
