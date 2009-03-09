@@ -20,4 +20,4 @@ The VMware image is compressed with "7z" and password protected.
 
 = Download =
 
-A [http://www.dps.uibk.ac.at/~csae6550/downloads/fedoradownloader.sh shell script] which downloads the compressed VMware image (divided into several parts) and merges the downloaded parts to a single .7z file can be download [http://www.dps.uibk.ac.at/~csae6550/downloads/fedoradownloader.sh here].
+The download of the VMware image is no longer available.
